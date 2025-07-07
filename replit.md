@@ -114,3 +114,8 @@ Preferred communication style: Simple, everyday language.
 
 Changelog:
 - July 07, 2025. Initial setup
+- July 07, 2025. Fixed app startup issues and logo display
+- July 07, 2025. Implemented placeholder formatting improvements:
+  - Arial PT11 for: endereco_dependencia, responsavel_dependencia, responsavel_tecnico
+  - Calibri PT11 for: ordem_servico, data_elaboracao, data_atendimento, tipo_atendimento, prefixo_sb, nome_ag, uf
+  - Added line breaks after each image for better spacing
