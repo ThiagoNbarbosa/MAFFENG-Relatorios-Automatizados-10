@@ -6,8 +6,6 @@ from datetime import datetime
 from docx import Document
 from docx.shared import Cm, Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_BREAK
-from docx.oxml.shared import OxmlElement, qn
-from docx.oxml.ns import nsdecls
 from PIL import Image, UnidentifiedImageError
 
 # Folder processing order as specified
@@ -109,65 +107,28 @@ def substituir_placeholders(doc, dados_formulario, placeholders):
         elif form_field == 'MAFFENG - Engenharia e Manutenção Profissional':
             placeholder_data[placeholder] = 'MAFFENG - Engenharia e Manutenção Profissional'
     
-    # Replace placeholders in paragraphs with proper formatting
+    # Replace placeholders in paragraphs
     for paragraph in doc.paragraphs:
         for placeholder, value in placeholder_data.items():
             if placeholder in paragraph.text:
-                # Clear existing runs and create new formatted run
-                paragraph.clear()
-                run = paragraph.add_run(str(value))
-                aplicar_estilo(run, 11, negrito=False)  # Calibri 11pt for placeholders
+                paragraph.text = paragraph.text.replace(placeholder, str(value))
     
-    # Replace placeholders in tables with proper formatting
+    # Replace placeholders in tables
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
                     for placeholder, value in placeholder_data.items():
                         if placeholder in paragraph.text:
-                            # Clear existing runs and create new formatted run
-                            paragraph.clear()
-                            run = paragraph.add_run(str(value))
-                            aplicar_estilo(run, 11, negrito=False)  # Calibri 11pt for placeholders
+                            paragraph.text = paragraph.text.replace(placeholder, str(value))
     
     print(f"Replaced {len(placeholder_data)} placeholders")
 
 def aplicar_estilo(run, tamanho, negrito=False):
-    """Apply font styling to text run - Using Calibri 11pt for placeholders"""
-    run.font.name = "Calibri"
+    """Apply font styling to text run"""
+    run.font.name = "Arial"
     run.font.size = Pt(tamanho)
     run.bold = negrito
-
-def criar_tabela_invisivel(doc, num_colunas):
-    """Create invisible table for image organization"""
-    table = doc.add_table(rows=1, cols=num_colunas)
-    
-    # Make table invisible by removing borders
-    tbl = table._tbl
-    for row in tbl.iter_trs():
-        for cell in row.iter_tcs():
-            tcPr = cell.get_or_add_tcPr()
-            tcBorders = tcPr.get_or_add_tcBorders()
-            for border_name in ['top', 'left', 'bottom', 'right']:
-                border = OxmlElement(f'w:{border_name}')
-                border.set(qn('w:val'), 'nil')
-                tcBorders.append(border)
-    
-    return table
-
-def determinar_organizacao_imagem(largura_cm):
-    """Determine how to organize images based on width"""
-    if largura_cm <= 5.92:
-        return 3  # 3 columns
-    elif largura_cm <= 7.50:
-        return 2  # 2 columns
-    else:
-        return 1  # Single column (full width)
-
-def adicionar_espacamento_paragrafo(paragraph):
-    """Add proper spacing after paragraph"""
-    paragraph_format = paragraph.paragraph_format
-    paragraph_format.space_after = Pt(12)  # 12pt space after paragraph
 
 def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario, output_path):
     """
@@ -229,6 +190,9 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
                 imagem_path = item["imagem"]
                 if os.path.exists(imagem_path) and os.path.getsize(imagem_path) > 0:
                     try:
+                        # Insert image paragraph
+                        p = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
+                        
                         # Calculate image dimensions
                         with Image.open(imagem_path) as img:
                             largura_original, altura_original = img.size
@@ -238,43 +202,14 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
                             ratio = altura_desejada_cm / (altura_original / 28.35)  # Convert pixels to cm
                             largura_proporcional_cm = (largura_original / 28.35) * ratio
                             
-                            # Determine organization based on image width
-                            num_colunas = determinar_organizacao_imagem(largura_proporcional_cm)
-                            
-                            if num_colunas == 1:
-                                # Single column - full width image
-                                p = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
-                                run = p.add_run()
-                                run.add_picture(
-                                    imagem_path,
-                                    width=Cm(largura_proporcional_cm),
-                                    height=Cm(altura_desejada_cm)
-                                )
-                                p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-                                adicionar_espacamento_paragrafo(p)
-                                
-                                # Add line break after image
-                                p_break = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
-                                adicionar_espacamento_paragrafo(p_break)
-                                
-                            else:
-                                # Multiple columns - use invisible table
-                                table = criar_tabela_invisivel(doc, num_colunas)
-                                cell = table.cell(0, 0)
-                                p = cell.paragraphs[0]
-                                run = p.add_run()
-                                run.add_picture(
-                                    imagem_path,
-                                    width=Cm(largura_proporcional_cm),
-                                    height=Cm(altura_desejada_cm)
-                                )
-                                p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-                                adicionar_espacamento_paragrafo(p)
-                                
-                                # Add line break after table
-                                p_break = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
-                                adicionar_espacamento_paragrafo(p_break)
-                            
+                            # Insert image
+                            run = p.add_run()
+                            run.add_picture(
+                                imagem_path,
+                                width=Cm(largura_proporcional_cm),
+                                height=Cm(altura_desejada_cm)
+                            )
+                            p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                             contador_imagens += 1
                         
                         # Clean up temporary image file
