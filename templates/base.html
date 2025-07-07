@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MAFFENG - Gerador de Relatórios Fotográficos{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a2e',
+                        secondary: '#16213e',
+                        accent: '#0f3460',
+                        glass: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent text-white">
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 opacity-10">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>')]"></div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="relative z-10 glass-card border-b border-white/20">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-camera text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">MAFFENG</h1>
+                        <p class="text-sm text-gray-300">Gerador de Relatórios Fotográficos</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-300">Engenharia e Manutenção Profissional</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="relative z-10 container mx-auto px-4 py-8">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for category, message in messages %}
+                        <div class="glass-card border-l-4 {{ 'border-green-500' if category == 'success' else 'border-red-500' }} p-4 rounded-lg animate-fade-in">
+                            <div class="flex items-center">
+                                <i class="fas {{ 'fa-check-circle text-green-500' if category == 'success' else 'fa-exclamation-circle text-red-500' }} mr-3"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="relative z-10 mt-16 border-t border-white/20">
+        <div class="container mx-auto px-4 py-6">
+            <div class="text-center text-gray-400">
+                <p>&copy; 2025 MAFFENG - Engenharia e Manutenção Profissional. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
