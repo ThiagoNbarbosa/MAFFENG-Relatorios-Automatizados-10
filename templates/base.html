@@ -38,19 +38,21 @@
     
     <!-- Navigation -->
     <nav class="relative z-10 glass-card border-b border-white/20">
-        <div class="container mx-auto px-4 py-4">
+        <div class="container mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-camera text-white text-xl"></i>
+                    <div class="w-16 h-16 flex items-center justify-center">
+                        <img src="{{ url_for('static', filename='images/maffeng-logo.png') }}" 
+                             alt="MAFFENG Logo" 
+                             class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold">MAFFENG</h1>
-                        <p class="text-sm text-gray-300">Gerador de Relatórios Fotográficos</p>
+                        <h1 class="text-2xl font-bold">MAFFENG</h1>
+                        <p class="text-base text-gray-300">Gerador de Relatórios Fotográficos</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm text-gray-300">Engenharia e Manutenção</p>
+                    <p class="text-base text-gray-300">Engenharia e Manutenção</p>
                 </div>
             </div>
         </div>
