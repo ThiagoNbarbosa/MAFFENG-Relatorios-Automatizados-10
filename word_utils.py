@@ -93,7 +93,7 @@ def processar_zip(zip_path, dados_formulario):
 
 def substituir_placeholders(doc, dados_formulario, placeholders):
     """
-    Replace placeholders in Word document with form data
+    Replace placeholders in Word document with form data and apply specific formatting
     """
     print("Replacing placeholders in document...")
     
@@ -107,28 +107,65 @@ def substituir_placeholders(doc, dados_formulario, placeholders):
         elif form_field == 'MAFFENG - Engenharia e Manutenção Profissional':
             placeholder_data[placeholder] = 'MAFFENG - Engenharia e Manutenção Profissional'
     
-    # Replace placeholders in paragraphs
+    # Replace placeholders in paragraphs with specific formatting
     for paragraph in doc.paragraphs:
         for placeholder, value in placeholder_data.items():
             if placeholder in paragraph.text:
-                paragraph.text = paragraph.text.replace(placeholder, str(value))
+                # Clear the paragraph and rebuild with proper formatting
+                paragraph.clear()
+                run = paragraph.add_run(str(value))
+                aplicar_estilo_placeholder(run, placeholder)
     
-    # Replace placeholders in tables
+    # Replace placeholders in tables with specific formatting
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
                     for placeholder, value in placeholder_data.items():
                         if placeholder in paragraph.text:
-                            paragraph.text = paragraph.text.replace(placeholder, str(value))
+                            # Clear the paragraph and rebuild with proper formatting
+                            paragraph.clear()
+                            run = paragraph.add_run(str(value))
+                            aplicar_estilo_placeholder(run, placeholder)
     
     print(f"Replaced {len(placeholder_data)} placeholders")
 
-def aplicar_estilo(run, tamanho, negrito=False):
+def aplicar_estilo(run, tamanho, negrito=False, fonte="Arial"):
     """Apply font styling to text run"""
-    run.font.name = "Arial"
+    run.font.name = fonte
     run.font.size = Pt(tamanho)
     run.bold = negrito
+
+def aplicar_estilo_placeholder(run, placeholder):
+    """Apply specific font styling based on placeholder type"""
+    # Arial PT 11 placeholders
+    arial_placeholders = [
+        '{{endereco_dependencia}}',
+        '{{responsavel_dependencia}}',
+        '{{responsavel_tecnico}}'
+    ]
+    
+    # Calibri PT 11 placeholders  
+    calibri_placeholders = [
+        '{{ordem_servico}}',
+        '{{data_elaboracao}}',
+        '{{data_atendimento}}',
+        '{{tipo_atendimento}}',
+        '{{prefixo_sb}}',
+        '{{nome_ag}}',
+        '{{uf}}'
+    ]
+    
+    if placeholder in arial_placeholders:
+        run.font.name = "Arial"
+        run.font.size = Pt(11)
+    elif placeholder in calibri_placeholders:
+        run.font.name = "Calibri"
+        run.font.size = Pt(11)
+    else:
+        # Default formatting
+        run.font.name = "Calibri"
+        run.font.size = Pt(11)
 
 def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario, output_path):
     """
@@ -211,6 +248,10 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
                             )
                             p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                             contador_imagens += 1
+                            
+                            # Add line break after image for better spacing
+                            p_break = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
+                            p_break.add_run().add_break(WD_BREAK.LINE)
                         
                         # Clean up temporary image file
                         try:
