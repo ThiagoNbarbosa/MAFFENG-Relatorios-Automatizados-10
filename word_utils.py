@@ -111,9 +111,15 @@ def substituir_placeholders(doc, dados_formulario, placeholders):
     for paragraph in doc.paragraphs:
         for placeholder, value in placeholder_data.items():
             if placeholder in paragraph.text:
-                # Clear the paragraph and rebuild with proper formatting
-                paragraph.clear()
-                run = paragraph.add_run(str(value))
+                # Replace text preserving existing formatting and structure
+                text_with_replacement = paragraph.text.replace(placeholder, str(value))
+                
+                # Clear runs but preserve paragraph structure
+                for run in paragraph.runs:
+                    run.clear()
+                
+                # Add new run with proper formatting
+                run = paragraph.add_run(text_with_replacement)
                 aplicar_estilo_placeholder(run, placeholder)
     
     # Replace placeholders in tables with specific formatting
@@ -123,9 +129,15 @@ def substituir_placeholders(doc, dados_formulario, placeholders):
                 for paragraph in cell.paragraphs:
                     for placeholder, value in placeholder_data.items():
                         if placeholder in paragraph.text:
-                            # Clear the paragraph and rebuild with proper formatting
-                            paragraph.clear()
-                            run = paragraph.add_run(str(value))
+                            # Replace text preserving existing formatting and structure
+                            text_with_replacement = paragraph.text.replace(placeholder, str(value))
+                            
+                            # Clear runs but preserve paragraph structure
+                            for run in paragraph.runs:
+                                run.clear()
+                            
+                            # Add new run with proper formatting
+                            run = paragraph.add_run(text_with_replacement)
                             aplicar_estilo_placeholder(run, placeholder)
     
     print(f"Replaced {len(placeholder_data)} placeholders")
@@ -249,9 +261,8 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
                             p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                             contador_imagens += 1
                             
-                            # Add line break after image for better spacing
+                            # Add single paragraph break after image for better spacing
                             p_break = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
-                            p_break.add_run().add_break(WD_BREAK.LINE)
                         
                         # Clean up temporary image file
                         try:
