@@ -7,7 +7,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from word_utils import processar_zip, inserir_conteudo_word, substituir_placeholders
-from docx_formatter import aplicar_melhorias_formatacao
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -181,57 +180,6 @@ def download_file(filename):
     except FileNotFoundError:
         flash('Arquivo não encontrado', 'error')
         return redirect(url_for('index'))
-
-@app.route('/formatar-documento', methods=['GET', 'POST'])
-def formatar_documento():
-    """Página para formatação de documentos existentes"""
-    if request.method == 'GET':
-        return render_template('formatar.html')
-    
-    try:
-        # Verificar se arquivo foi enviado
-        if 'arquivo_docx' not in request.files:
-            flash('Nenhum arquivo .docx selecionado', 'error')
-            return redirect(url_for('formatar_documento'))
-        
-        file = request.files['arquivo_docx']
-        if file.filename == '':
-            flash('Nenhum arquivo selecionado', 'error')
-            return redirect(url_for('formatar_documento'))
-        
-        if not file.filename.lower().endswith('.docx'):
-            flash('Apenas arquivos .docx são permitidos', 'error')
-            return redirect(url_for('formatar_documento'))
-        
-        # Salvar arquivo temporário
-        filename = secure_filename(file.filename)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        temp_filename = f"temp_{timestamp}_{filename}"
-        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
-        file.save(temp_path)
-        
-        # Gerar nome do arquivo formatado
-        base_name = os.path.splitext(filename)[0]
-        output_filename = f"{base_name}_FORMATADO.docx"
-        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-        
-        # Aplicar formatação
-        sucesso = aplicar_melhorias_formatacao(temp_path, output_path)
-        
-        # Limpar arquivo temporário
-        os.remove(temp_path)
-        
-        if sucesso:
-            flash('Documento formatado com sucesso!', 'success')
-            return render_template('success_formatacao.html', filename=output_filename)
-        else:
-            flash('Erro ao formatar documento', 'error')
-            return redirect(url_for('formatar_documento'))
-    
-    except Exception as e:
-        app.logger.error(f"Erro na formatação: {str(e)}")
-        flash(f'Erro ao processar arquivo: {str(e)}', 'error')
-        return redirect(url_for('formatar_documento'))
 
 @app.errorhandler(413)
 def too_large(e):
