@@ -17,7 +17,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-prod
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configuration
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'output'
 app.config['MODELS_FOLDER'] = 'models'
@@ -75,12 +75,12 @@ def validate_form_data(form_data):
         'tipo_atendimento', 'responsavel_dependencia', 'responsavel_tecnico',
         'modelo_selecionado'
     ]
-    
+
     errors = []
     for field in required_fields:
         if not form_data.get(field):
             errors.append(f'Campo obrigatório: {field.replace("_", " ").title()}')
-    
+
     return errors
 
 @app.route('/')
@@ -97,33 +97,33 @@ def processar_upload():
         # Validate form data
         form_data = request.form.to_dict()
         errors = validate_form_data(form_data)
-        
+
         if errors:
             for error in errors:
                 flash(error, 'error')
             return redirect(url_for('index'))
-        
+
         # Check if file was uploaded
         if 'arquivo_zip' not in request.files:
             flash('Nenhum arquivo ZIP selecionado', 'error')
             return redirect(url_for('index'))
-        
+
         file = request.files['arquivo_zip']
         if file.filename == '':
             flash('Nenhum arquivo selecionado', 'error')
             return redirect(url_for('index'))
-        
+
         if not allowed_file(file.filename):
             flash('Apenas arquivos ZIP são permitidos', 'error')
             return redirect(url_for('index'))
-        
+
         # Save uploaded file
         filename = secure_filename(file.filename)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         safe_filename = f"{timestamp}_{filename}"
         zip_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
         file.save(zip_path)
-        
+
         # Validate ZIP file
         try:
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
@@ -132,41 +132,41 @@ def processar_upload():
             flash('Arquivo ZIP corrompido ou inválido', 'error')
             os.remove(zip_path)
             return redirect(url_for('index'))
-        
+
         # Get selected model path
         modelo_selecionado = form_data['modelo_selecionado']
         modelo_path = os.path.join(app.config['MODELS_FOLDER'], f"{modelo_selecionado}.docx")
-        
+
         if not os.path.exists(modelo_path):
             flash(f'Modelo não encontrado: {modelo_selecionado}', 'error')
             os.remove(zip_path)
             return redirect(url_for('index'))
-        
+
         # Process ZIP file
         app.logger.info(f"Processing ZIP file: {zip_path}")
         conteudo_estruturado = processar_zip(zip_path, form_data)
-        
+
         # Generate output filename
         nome_projeto = form_data['nome_projeto']
         safe_project_name = secure_filename(nome_projeto)
         output_filename = f"RELATÓRIO FOTOGRÁFICO - {safe_project_name} - LEVANTAMENTO PREVENTIVO.docx"
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-        
+
         # Generate Word document
         app.logger.info(f"Generating Word document: {output_path}")
         num_imagens = inserir_conteudo_word(modelo_path, conteudo_estruturado, PLACEHOLDERS, form_data, output_path)
-        
+
         # Clean up temporary files
         os.remove(zip_path)
-        
+
         # Success message
         flash(f'Relatório gerado com sucesso! {num_imagens} imagens inseridas.', 'success')
-        
+
         return render_template('success.html', 
                              filename=output_filename,
                              num_imagens=num_imagens,
                              projeto=nome_projeto)
-        
+
     except Exception as e:
         app.logger.error(f"Error processing upload: {str(e)}")
         flash(f'Erro ao processar arquivo: {str(e)}', 'error')
@@ -184,7 +184,7 @@ def download_file(filename):
 @app.errorhandler(413)
 def too_large(e):
     """Handle file too large error"""
-    flash('Arquivo muito grande. Tamanho máximo: 100MB', 'error')
+    flash('Arquivo muito grande. Tamanho máximo: 500MB', 'error')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
