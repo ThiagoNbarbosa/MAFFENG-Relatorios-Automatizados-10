@@ -121,6 +121,9 @@ def substituir_placeholders(doc, dados_formulario, placeholders):
                 # Add new run with proper formatting
                 run = paragraph.add_run(text_with_replacement)
                 aplicar_estilo_placeholder(run, placeholder)
+                
+                # Ensure no hyperlink formatting is applied
+                run.font.underline = False
     
     # Replace placeholders in tables with specific formatting
     for table in doc.tables:
@@ -139,6 +142,9 @@ def substituir_placeholders(doc, dados_formulario, placeholders):
                             # Add new run with proper formatting
                             run = paragraph.add_run(text_with_replacement)
                             aplicar_estilo_placeholder(run, placeholder)
+                            
+                            # Ensure no hyperlink formatting is applied
+                            run.font.underline = False
     
     print(f"Replaced {len(placeholder_data)} placeholders")
 
@@ -171,13 +177,16 @@ def aplicar_estilo_placeholder(run, placeholder):
     if placeholder in arial_placeholders:
         run.font.name = "Arial"
         run.font.size = Pt(11)
+        run.font.color.rgb = None  # Remove any color formatting
     elif placeholder in calibri_placeholders:
         run.font.name = "Calibri"
         run.font.size = Pt(11)
+        run.font.color.rgb = None  # Remove any color formatting
     else:
         # Default formatting
         run.font.name = "Calibri"
         run.font.size = Pt(11)
+        run.font.color.rgb = None  # Remove any color formatting
 
 def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario, output_path):
     """
