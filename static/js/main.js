@@ -19,10 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileName.parentElement.classList.add('border-green-500');
                 fileName.parentElement.classList.remove('border-red-500');
                 
-                // Check file size (100MB limit)
-                const maxSize = 100 * 1024 * 1024;
+                // Check file size (500MB limit)
+                const maxSize = 500 * 1024 * 1024;
                 if (file.size > maxSize) {
-                    showNotification('Arquivo muito grande. Tamanho máximo: 100MB', 'error');
+                    showNotification('Arquivo muito grande. Tamanho máximo: 500MB', 'error');
                     fileInput.value = '';
                     fileName.textContent = 'Selecionar arquivo ZIP';
                     fileName.parentElement.classList.remove('border-green-500');

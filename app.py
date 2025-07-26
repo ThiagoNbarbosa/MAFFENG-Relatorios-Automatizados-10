@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from word_utils import processar_zip, inserir_conteudo_word, substituir_placeholders
+from config_manager import config_manager
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -17,7 +18,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-prod
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configuration
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'output'
 app.config['MODELS_FOLDER'] = 'models'
@@ -68,27 +69,110 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def validate_form_data(form_data):
-    """Validate required form fields"""
-    required_fields = [
-        'nome_projeto', 'numero_contrato', 'ordem_servico', 'data_elaboracao',
-        'prefixo_agencia', 'nome_dependencia', 'endereco_completo', 'uf',
-        'tipo_atendimento', 'responsavel_dependencia', 'responsavel_tecnico',
-        'modelo_selecionado'
-    ]
-    
+    """Validate required form fields based on configuration"""
     errors = []
-    for field in required_fields:
+    
+    # Validar campos obrigatórios básicos
+    basic_required = ['nome_projeto', 'modelo_selecionado']
+    for field in basic_required:
         if not form_data.get(field):
             errors.append(f'Campo obrigatório: {field.replace("_", " ").title()}')
+    
+    # Validar campos variáveis obrigatórios
+    variable_fields = config_manager.get_variable_fields()
+    for field_key, config in variable_fields.items():
+        if config.get('required', False) and not form_data.get(field_key):
+            label = config.get('label', field_key.replace('_', ' ').title())
+            errors.append(f'Campo obrigatório: {label}')
     
     return errors
 
 @app.route('/')
 def index():
     """Main page with form"""
+    # Obter configuração organizada por seções
+    placeholders = config_manager.get_all_placeholders()
+    
+    section_icons = {
+        'projeto': 'fa-project-diagram',
+        'dependencia': 'fa-building',
+        'responsaveis': 'fa-users',
+        'empresa': 'fa-industry'
+    }
+    
     return render_template('index.html', 
                          modelos=AVAILABLE_MODELS, 
-                         estados=ESTADOS_BRASIL)
+                         estados=ESTADOS_BRASIL,
+                         placeholders=placeholders,
+                         section_icons=section_icons)
+
+@app.route('/configuracoes')
+def configuracoes():
+    """Página de configuração de placeholders"""
+    placeholders = config_manager.get_all_placeholders()
+    
+    section_icons = {
+        'projeto': 'fa-project-diagram',
+        'dependencia': 'fa-building',
+        'responsaveis': 'fa-users',
+        'empresa': 'fa-industry'
+    }
+    
+    # Formatação da data de última atualização
+    last_updated = 'Nunca'
+    if 'updated_at' in config_manager.config:
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(config_manager.config['updated_at'])
+            last_updated = dt.strftime('%d/%m/%Y às %H:%M')
+        except:
+            pass
+    
+    return render_template('config.html',
+                         placeholders=placeholders,
+                         section_icons=section_icons,
+                         last_updated=last_updated)
+
+@app.route('/configuracoes/salvar', methods=['POST'])
+def salvar_configuracoes():
+    """Salva as configurações dos placeholders"""
+    try:
+        form_data = request.form.to_dict()
+        
+        # Processar dados do formulário
+        for key, config in config_manager.config['placeholders'].items():
+            field_type = form_data.get(f'type_{key}', config.get('type', 'variable'))
+            label = form_data.get(f'label_{key}', config.get('label', ''))
+            value = form_data.get(f'value_{key}', config.get('value', ''))
+            
+            # Validar campos fixos obrigatórios
+            if field_type == 'fixed' and not value.strip():
+                flash(f'Valor fixo obrigatório para: {label}', 'error')
+                return redirect(url_for('configuracoes'))
+            
+            # Atualizar configuração
+            config_manager.update_placeholder(key, field_type, value, label)
+        
+        flash('Configurações salvas com sucesso!', 'success')
+        
+    except Exception as e:
+        flash(f'Erro ao salvar configurações: {str(e)}', 'error')
+        app.logger.error(f"Erro ao salvar configurações: {e}")
+    
+    return redirect(url_for('configuracoes'))
+
+@app.route('/configuracoes/reset')
+def reset_configuracoes():
+    """Restaura configurações padrão"""
+    try:
+        # Recriar configuração padrão
+        config_manager.config = config_manager.default_config.copy()
+        config_manager.save_config()
+        flash('Configurações restauradas para o padrão!', 'success')
+    except Exception as e:
+        flash(f'Erro ao restaurar configurações: {str(e)}', 'error')
+    
+    return redirect(url_for('configuracoes'))
 
 @app.route('/upload', methods=['POST'])
 def processar_upload():
@@ -97,33 +181,33 @@ def processar_upload():
         # Validate form data
         form_data = request.form.to_dict()
         errors = validate_form_data(form_data)
-        
+
         if errors:
             for error in errors:
                 flash(error, 'error')
             return redirect(url_for('index'))
-        
+
         # Check if file was uploaded
         if 'arquivo_zip' not in request.files:
             flash('Nenhum arquivo ZIP selecionado', 'error')
             return redirect(url_for('index'))
-        
+
         file = request.files['arquivo_zip']
         if file.filename == '':
             flash('Nenhum arquivo selecionado', 'error')
             return redirect(url_for('index'))
-        
+
         if not allowed_file(file.filename):
             flash('Apenas arquivos ZIP são permitidos', 'error')
             return redirect(url_for('index'))
-        
+
         # Save uploaded file
         filename = secure_filename(file.filename)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         safe_filename = f"{timestamp}_{filename}"
         zip_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
         file.save(zip_path)
-        
+
         # Validate ZIP file
         try:
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
@@ -132,41 +216,44 @@ def processar_upload():
             flash('Arquivo ZIP corrompido ou inválido', 'error')
             os.remove(zip_path)
             return redirect(url_for('index'))
-        
+
         # Get selected model path
         modelo_selecionado = form_data['modelo_selecionado']
         modelo_path = os.path.join(app.config['MODELS_FOLDER'], f"{modelo_selecionado}.docx")
-        
+
         if not os.path.exists(modelo_path):
             flash(f'Modelo não encontrado: {modelo_selecionado}', 'error')
             os.remove(zip_path)
             return redirect(url_for('index'))
-        
+
         # Process ZIP file
         app.logger.info(f"Processing ZIP file: {zip_path}")
         conteudo_estruturado = processar_zip(zip_path, form_data)
-        
+
+        # Merge form data with fixed values from configuration
+        complete_form_data = config_manager.get_form_data_with_defaults(form_data)
+
         # Generate output filename
         nome_projeto = form_data['nome_projeto']
         safe_project_name = secure_filename(nome_projeto)
         output_filename = f"RELATÓRIO FOTOGRÁFICO - {safe_project_name} - LEVANTAMENTO PREVENTIVO.docx"
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-        
+
         # Generate Word document
         app.logger.info(f"Generating Word document: {output_path}")
-        num_imagens = inserir_conteudo_word(modelo_path, conteudo_estruturado, PLACEHOLDERS, form_data, output_path)
-        
+        num_imagens = inserir_conteudo_word(modelo_path, conteudo_estruturado, PLACEHOLDERS, complete_form_data, output_path)
+
         # Clean up temporary files
         os.remove(zip_path)
-        
+
         # Success message
         flash(f'Relatório gerado com sucesso! {num_imagens} imagens inseridas.', 'success')
-        
+
         return render_template('success.html', 
                              filename=output_filename,
                              num_imagens=num_imagens,
                              projeto=nome_projeto)
-        
+
     except Exception as e:
         app.logger.error(f"Error processing upload: {str(e)}")
         flash(f'Erro ao processar arquivo: {str(e)}', 'error')
@@ -184,7 +271,7 @@ def download_file(filename):
 @app.errorhandler(413)
 def too_large(e):
     """Handle file too large error"""
-    flash('Arquivo muito grande. Tamanho máximo: 100MB', 'error')
+    flash('Arquivo muito grande. Tamanho máximo: 500MB', 'error')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
