@@ -1,0 +1,54 @@
+<!-- Gerador dinâmico de formulário baseado na configuração -->
+{% macro render_section(section_key, section_data, estados, section_icons) %}
+<div class="glass-card p-6 rounded-lg">
+    <h3 class="text-xl font-semibold mb-4 flex items-center">
+        <i class="fas {{ section_icons[section_key] }} mr-3 text-blue-400"></i>
+        {{ section_data.name }}
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for field_key, config in section_data.placeholders.items() %}
+            {% if config.type == 'variable' %}
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    {{ config.label }}
+                    {% if config.required %} *{% endif %}
+                </label>
+                
+                {% if field_key == 'uf' %}
+                    <select name="{{ field_key }}" 
+                            {% if config.required %}required{% endif %}
+                            class="form-select w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione o estado</option>
+                        {% for estado in estados %}
+                        <option value="{{ estado }}" {% if config.value == estado %}selected{% endif %}>{{ estado }}</option>
+                        {% endfor %}
+                    </select>
+                {% elif field_key == 'data_elaboracao' or field_key == 'data_atendimento' %}
+                    <input type="date" 
+                           name="{{ field_key }}" 
+                           value="{{ config.value }}"
+                           {% if config.required %}required{% endif %}
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                {% elif field_key == 'tipo_atendimento' %}
+                    <select name="{{ field_key }}" 
+                            {% if config.required %}required{% endif %}
+                            class="form-select w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione o tipo</option>
+                        <option value="Levantamento Preventivo" {% if config.value == 'Levantamento Preventivo' %}selected{% endif %}>Levantamento Preventivo</option>
+                        <option value="Manutenção Corretiva" {% if config.value == 'Manutenção Corretiva' %}selected{% endif %}>Manutenção Corretiva</option>
+                        <option value="Inspeção Técnica" {% if config.value == 'Inspeção Técnica' %}selected{% endif %}>Inspeção Técnica</option>
+                        <option value="Outro" {% if config.value == 'Outro' %}selected{% endif %}>Outro</option>
+                    </select>
+                {% else %}
+                    <input type="text" 
+                           name="{{ field_key }}" 
+                           value="{{ config.value }}"
+                           {% if config.required %}required{% endif %}
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
