@@ -222,7 +222,11 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
     for item in conteudo_invertido:
         if isinstance(item, str):
             # Process folder titles
-            titulo = item.replace("»", "").strip() + ":"
+            titulo_limpo = item.replace("»", "").strip()
+            # Remove duplicate hyphens if they exist
+            if titulo_limpo.startswith("- -"):
+                titulo_limpo = titulo_limpo[2:].strip()
+            titulo = titulo_limpo + ":"
             nivel = item.count("»")
             
             # Insert new paragraph
