@@ -43,7 +43,7 @@
                         <input type="hidden" name="item_type_{{ item_index }}" value="folder">
                         <input type="hidden" name="item_original_{{ item_index }}" value="{{ item.original_title }}">
                         <input type="hidden" name="item_level_{{ item_index }}" value="{{ item.level }}">
-                        
+
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3 flex-1">
                                 <div class="drag-handle cursor-move text-gray-400 hover:text-white">
@@ -73,7 +73,7 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Images in this folder -->
                         {% if item.images %}
                             <div class="mt-4 ml-8">
@@ -83,7 +83,7 @@
                                         <div class="preview-item bg-white/5 border border-white/10 rounded p-2 text-sm" data-type="image" data-index="{{ image_index }}">
                                             <input type="hidden" name="item_type_{{ image_index }}" value="image">
                                             <input type="hidden" name="item_path_{{ image_index }}" value="{{ image.path }}">
-                                            
+
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center space-x-2 flex-1 min-w-0">
                                                     <i class="fas fa-image text-blue-400 text-xs"></i>
@@ -111,7 +111,7 @@
                 <i class="fas fa-arrow-left mr-2"></i>
                 Voltar ao Formulário
             </a>
-            
+
             <div class="space-x-4">
                 <button onclick="resetOrder()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors">
                     <i class="fas fa-undo mr-2"></i>
@@ -160,13 +160,13 @@ sortableList.addEventListener('drop', function(e) {
         if (target && target !== draggedElement) {
             let rect = target.getBoundingClientRect();
             let insertBefore = e.clientY < rect.top + rect.height / 2;
-            
+
             if (insertBefore) {
                 target.parentNode.insertBefore(draggedElement, target);
             } else {
                 target.parentNode.insertBefore(draggedElement, target.nextSibling);
             }
-            
+
             updateItemIndices();
         }
     }
@@ -199,12 +199,12 @@ function updateItemIndices() {
     let items = document.querySelectorAll('.preview-item');
     let folderIndex = 0;
     let imageIndex = 1000; // Start images from a high number to avoid conflicts
-    
+
     items.forEach((item, index) => {
         let type = item.dataset.type;
         let oldIndex = item.dataset.index;
         let newIndex;
-        
+
         if (type === 'folder') {
             newIndex = folderIndex;
             folderIndex += 1;
@@ -212,14 +212,14 @@ function updateItemIndices() {
             newIndex = imageIndex;
             imageIndex += 1;
         }
-        
+
         // Update all input names in this item
         item.querySelectorAll('input').forEach(input => {
             if (input.name) {
                 input.name = input.name.replace(oldIndex, newIndex);
             }
         });
-        
+
         item.dataset.index = newIndex;
     });
 }
@@ -233,13 +233,13 @@ function resetOrder() {
 function generateReport() {
     // Update indices one final time before submission
     updateItemIndices();
-    
+
     // Show loading state
     let button = event.target;
     let originalText = button.innerHTML;
     button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Gerando Relatório...';
     button.disabled = true;
-    
+
     // Submit form
     document.getElementById('previewForm').submit();
 }
