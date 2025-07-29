@@ -13,6 +13,10 @@
 - ✅ Rebuilt all views using Razor templates
 - ✅ Maintained identical functionality and user experience
 - ✅ Improved performance with native .NET libraries
+- ✅ **NEW: Intelligent column layout for images**
+  - Small images (≤7.5cm width) grouped in 3-column tables
+  - Large images remain in single lines
+  - Hybrid layout optimizes document space usage
 - → Working on .NET runtime configuration for deployment
 
 ## New C# System Architecture
@@ -62,6 +66,11 @@
 
 ### Core Processing Logic
 - **Folder Organization**: Processes folders in specific order (Área externa, Área interna, Segundo piso, Detalhes, Vista ampla)
+- **Intelligent Image Layout**: 
+  - Analyzes image dimensions automatically
+  - Groups small images (≤7.5cm width) in 3-column tables
+  - Maintains large images in single lines
+  - Optimizes space usage and visual appearance
 - **Image Handling**: Supports PNG, JPG, JPEG formats with automatic resizing
 - **Template Processing**: Uses placeholder replacement for dynamic content insertion
 - **Document Structure**: Maintains hierarchical heading structure based on folder depth
