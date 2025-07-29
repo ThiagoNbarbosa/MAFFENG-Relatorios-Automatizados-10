@@ -3,7 +3,7 @@ import logging
 import zipfile
 import shutil
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from word_utils import processar_zip, inserir_conteudo_word, substituir_placeholders
@@ -174,6 +174,155 @@ def reset_configuracoes():
     
     return redirect(url_for('configuracoes'))
 
+@app.route('/preview')
+def preview():
+    """Preview page showing folder structure and images before generating report"""
+    if 'conteudo_estruturado' not in session:
+        flash('Dados não encontrados. Por favor, faça o upload novamente.', 'error')
+        return redirect(url_for('index'))
+    
+    conteudo_estruturado = session['conteudo_estruturado']
+    form_data = session['form_data']
+    
+    # Organize content for preview
+    preview_items = []
+    current_folder = None
+    
+    for item in conteudo_estruturado:
+        if isinstance(item, str):
+            # This is a folder title
+            nivel = item.count("»")
+            titulo_limpo = item.replace("»", "").strip()
+            if titulo_limpo.startswith("- -"):
+                titulo_limpo = titulo_limpo[2:].strip()
+            
+            current_folder = {
+                'type': 'folder',
+                'title': titulo_limpo,
+                'original_title': item,
+                'level': nivel,
+                'images': []
+            }
+            preview_items.append(current_folder)
+            
+        elif isinstance(item, dict) and 'imagem' in item:
+            # This is an image
+            if current_folder:
+                image_name = os.path.basename(item['imagem'])
+                current_folder['images'].append({
+                    'type': 'image',
+                    'name': image_name,
+                    'path': item['imagem']
+                })
+        elif isinstance(item, dict) and 'quebra_pagina' in item:
+            # Skip page breaks in preview
+            continue
+    
+    return render_template('preview.html', 
+                         preview_items=preview_items,
+                         form_data=form_data)
+
+@app.route('/generate-report', methods=['POST'])
+def generate_report():
+    """Generate the final report with customized order"""
+    if 'form_data' not in session:
+        flash('Dados não encontrados. Por favor, faça o upload novamente.', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        # Get data from session
+        form_data = session['form_data']
+        zip_path = session['zip_path']
+        modelo_path = session['modelo_path']
+        
+        # Get customized order from form
+        customized_content = []
+        form_data_from_request = request.form.to_dict()
+        
+        # Rebuild content structure based on form data
+        i = 0
+        while f'item_type_{i}' in form_data_from_request:
+            item_type = form_data_from_request[f'item_type_{i}']
+            
+            if item_type == 'folder':
+                title = form_data_from_request[f'item_title_{i}']
+                original_title = form_data_from_request[f'item_original_{i}']
+                level = int(form_data_from_request[f'item_level_{i}'])
+                
+                # Reconstruct folder title with proper level markers
+                if level == 0:
+                    folder_title = title
+                elif level == 1:
+                    folder_title = f"»{title}"
+                elif level == 2:
+                    folder_title = f"»»{title}"
+                else:
+                    folder_title = f"»»»{title}"
+                
+                customized_content.append(folder_title)
+                
+            elif item_type == 'image':
+                image_path = form_data_from_request[f'item_path_{i}']
+                customized_content.append({"imagem": image_path})
+            
+            i += 1
+        
+        # Add page breaks between sections (similar to original logic)
+        final_content = []
+        current_folder_images = []
+        
+        for item in customized_content:
+            if isinstance(item, str):
+                # If we have accumulated images, add them and a page break
+                if current_folder_images:
+                    final_content.extend(current_folder_images)
+                    final_content.append({"quebra_pagina": True})
+                    current_folder_images = []
+                final_content.append(item)
+            else:
+                current_folder_images.append(item)
+        
+        # Add remaining images
+        if current_folder_images:
+            final_content.extend(current_folder_images)
+            final_content.append({"quebra_pagina": True})
+        
+        # Merge form data with fixed values from configuration
+        complete_form_data = config_manager.get_form_data_with_defaults(form_data)
+
+        # Generate output filename
+        nome_projeto = form_data['nome_projeto']
+        safe_project_name = secure_filename(nome_projeto)
+        output_filename = f"RELATÓRIO FOTOGRÁFICO - {safe_project_name} - LEVANTAMENTO PREVENTIVO.docx"
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+
+        # Generate Word document
+        app.logger.info(f"Generating Word document: {output_path}")
+        num_imagens = inserir_conteudo_word(modelo_path, final_content, PLACEHOLDERS, complete_form_data, output_path)
+
+        # Clean up temporary files
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
+
+        # Clear session data
+        session.pop('form_data', None)
+        session.pop('zip_path', None)
+        session.pop('conteudo_estruturado', None)
+        session.pop('modelo_path', None)
+
+        # Success message
+        flash(f'Relatório gerado com sucesso! {num_imagens} imagens inseridas.', 'success')
+
+        return render_template('success.html', 
+                             filename=output_filename,
+                             num_imagens=num_imagens,
+                             projeto=nome_projeto)
+
+    except Exception as e:
+        app.logger.error(f"Error generating report: {str(e)}")
+        flash(f'Erro ao gerar relatório: {str(e)}', 'error')
+        return redirect(url_for('preview'))
+
 @app.route('/upload', methods=['POST'])
 def processar_upload():
     """Process form submission and ZIP file upload"""
@@ -202,7 +351,7 @@ def processar_upload():
             return redirect(url_for('index'))
 
         # Save uploaded file
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename or 'arquivo.zip')
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         safe_filename = f"{timestamp}_{filename}"
         zip_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
@@ -230,29 +379,14 @@ def processar_upload():
         app.logger.info(f"Processing ZIP file: {zip_path}")
         conteudo_estruturado = processar_zip(zip_path, form_data)
 
-        # Merge form data with fixed values from configuration
-        complete_form_data = config_manager.get_form_data_with_defaults(form_data)
+        # Store data in session for preview page
+        session['form_data'] = form_data
+        session['zip_path'] = zip_path
+        session['conteudo_estruturado'] = conteudo_estruturado
+        session['modelo_path'] = modelo_path
 
-        # Generate output filename
-        nome_projeto = form_data['nome_projeto']
-        safe_project_name = secure_filename(nome_projeto)
-        output_filename = f"RELATÓRIO FOTOGRÁFICO - {safe_project_name} - LEVANTAMENTO PREVENTIVO.docx"
-        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-
-        # Generate Word document
-        app.logger.info(f"Generating Word document: {output_path}")
-        num_imagens = inserir_conteudo_word(modelo_path, conteudo_estruturado, PLACEHOLDERS, complete_form_data, output_path)
-
-        # Clean up temporary files
-        os.remove(zip_path)
-
-        # Success message
-        flash(f'Relatório gerado com sucesso! {num_imagens} imagens inseridas.', 'success')
-
-        return render_template('success.html', 
-                             filename=output_filename,
-                             num_imagens=num_imagens,
-                             projeto=nome_projeto)
+        # Redirect to preview page
+        return redirect(url_for('preview'))
 
     except Exception as e:
         app.logger.error(f"Error processing upload: {str(e)}")
