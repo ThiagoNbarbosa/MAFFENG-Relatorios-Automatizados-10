@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold mb-4">Gerador de Relatórios Fotográficos</h2>
+        <p class="text-gray-300">Faça upload de um arquivo ZIP com suas fotos organizadas em pastas e gere relatórios Word profissionais automaticamente.</p>
+    </div>
+    
+    <!-- Form -->
+    <form id="uploadForm" action="{{ url_for('processar_upload') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        
+        <!-- Section 1: Project Information -->
+        <div class="glass-card p-6 rounded-lg">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-project-diagram mr-3 text-blue-400"></i>
+                Informações do Projeto
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Nome do Projeto *</label>
+                    <input type="text" name="nome_projeto" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Número do Contrato *</label>
+                    <input type="text" name="numero_contrato" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Ordem de Serviço *</label>
+                    <input type="text" name="ordem_servico" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Data de Elaboração *</label>
+                    <input type="date" name="data_elaboracao" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 2: Dependency Information -->
+        <div class="glass-card p-6 rounded-lg">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-building mr-3 text-green-400"></i>
+                Informações da Dependência
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Prefixo da Agência *</label>
+                    <input type="text" name="prefixo_agencia" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Nome da Dependência *</label>
+                    <input type="text" name="nome_dependencia" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-2">Endereço Completo *</label>
+                    <textarea name="endereco_completo" required rows="3"
+                              class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">UF *</label>
+                    <select name="uf" required 
+                            class="form-select w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione o estado</option>
+                        {% for estado in estados %}
+                            <option value="{{ estado }}">{{ estado }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Tipo de Atendimento *</label>
+                    <select name="tipo_atendimento" required 
+                            class="form-select w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione o tipo</option>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Corretivo">Corretivo</option>
+                        <option value="Emergencial">Emergencial</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Responsible Parties -->
+        <div class="glass-card p-6 rounded-lg">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-users mr-3 text-purple-400"></i>
+                Responsáveis
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Responsável da Dependência *</label>
+                    <input type="text" name="responsavel_dependencia" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Responsável Técnico *</label>
+                    <input type="text" name="responsavel_tecnico" required 
+                           class="form-input w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 4: Files -->
+        <div class="glass-card p-6 rounded-lg">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-file-upload mr-3 text-orange-400"></i>
+                Arquivos
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Seleção de Modelo *</label>
+                    <select name="modelo_selecionado" required 
+                            class="form-select w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione o modelo</option>
+                        {% for key, value in modelos.items() %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Upload de ZIP *</label>
+                    <div class="relative">
+                        <input type="file" name="arquivo_zip" id="arquivo_zip" accept=".zip" required 
+                               class="form-file absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div class="flex items-center justify-center w-full h-12 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-200">
+                            <i class="fas fa-upload mr-2"></i>
+                            <span id="file-name">Selecionar arquivo ZIP</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Tamanho máximo: 500MB</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="text-center">
+            <button type="submit" id="submitBtn" 
+                    class="btn-primary px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-cog mr-2"></i>
+                <span id="btn-text">Gerar Relatório</span>
+            </button>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div id="progress-container" class="hidden">
+            <div class="glass-card p-4 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">Processando...</span>
+                    <span id="progress-text" class="text-sm text-gray-400">0%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-2">
+                    <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
