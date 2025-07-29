@@ -3,7 +3,7 @@ import logging
 import zipfile
 import shutil
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session, send_file, abort
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from word_utils import processar_zip, inserir_conteudo_word, substituir_placeholders
@@ -252,6 +252,14 @@ def generate_report():
         customized_content = []
         form_data_from_request = request.form.to_dict()
         
+        # Debug: Log form data to understand the structure
+        app.logger.info(f"Form data keys: {list(form_data_from_request.keys())}")
+        app.logger.info(f"Total form fields: {len(form_data_from_request)}")
+        
+        # Count images in form data
+        image_count = sum(1 for key in form_data_from_request.keys() if key.startswith('item_type_') and form_data_from_request[key] == 'image')
+        app.logger.info(f"Images found in form: {image_count}")
+        
         # Rebuild content structure based on form data
         i = 0
         while f'item_type_{i}' in form_data_from_request:
@@ -344,6 +352,40 @@ def generate_report():
         app.logger.error(f"Error generating report: {str(e)}")
         flash(f'Erro ao gerar relatório: {str(e)}', 'error')
         return redirect(url_for('preview'))
+
+@app.route('/thumbnail/<path:image_path>')
+def serve_thumbnail(image_path):
+    """Serve image thumbnail for preview"""
+    try:
+        # Ensure the path is safe and exists
+        if not image_path.startswith('/tmp/temp_img_'):
+            abort(404)
+        
+        if not os.path.exists(image_path):
+            abort(404)
+            
+        # Generate thumbnail using PIL
+        from PIL import Image
+        import io
+        
+        with Image.open(image_path) as img:
+            # Convert to RGB if necessary
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
+            
+            # Create thumbnail (100x100)
+            img.thumbnail((100, 100), Image.Resampling.LANCZOS)
+            
+            # Save to bytes
+            img_io = io.BytesIO()
+            img.save(img_io, format='JPEG', quality=85)
+            img_io.seek(0)
+            
+            return send_file(img_io, mimetype='image/jpeg')
+            
+    except Exception as e:
+        app.logger.error(f"Error serving thumbnail: {e}")
+        abort(404)
 
 @app.route('/upload', methods=['POST'])
 def processar_upload():

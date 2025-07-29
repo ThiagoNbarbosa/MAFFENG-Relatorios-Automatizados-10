@@ -84,30 +84,37 @@
                         <!-- Images in this folder -->
                         {% if item.images %}
                             <div class="mt-4 ml-8">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                     {% for image in item.images %}
-                                        {% set image_index = item_index + loop.index %}
-                                        <div class="preview-item bg-white/5 border border-white/10 rounded p-2 text-sm" data-type="image" data-index="{{ image_index }}">
+                                        {% set image_index = item_index + 1 + loop.index %}
+                                        <div class="preview-item bg-white/5 border border-white/10 rounded-lg overflow-hidden" data-type="image" data-index="{{ image_index }}">
                                             <input type="hidden" name="item_type_{{ image_index }}" value="image">
                                             <input type="hidden" name="item_path_{{ image_index }}" value="{{ image.path }}">
 
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center space-x-2 flex-1 min-w-0">
-                                                    <i class="fas fa-image text-blue-400 text-xs"></i>
-                                                    <span class="text-gray-300 truncate">{{ image.name }}</span>
-                                                </div>
-                                                <button type="button" onclick="removeItem(this)" class="text-red-400 hover:text-red-300 p-1 ml-2">
-                                                    <i class="fas fa-trash text-xs"></i>
+                                            <!-- Image thumbnail -->
+                                            <div class="aspect-square bg-gray-800 relative group">
+                                                <img src="{{ url_for('serve_thumbnail', image_path=image.path) }}" 
+                                                     alt="{{ image.name }}" 
+                                                     class="w-full h-full object-cover"
+                                                     onerror="this.src='data:image/svg+xml,{{ '<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%23374151\"/><text x=\"50\" y=\"50\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"%239CA3AF\" font-size=\"12\">IMG</text></svg>' | urlencode }}'">
+                                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200"></div>
+                                                <button type="button" onclick="removeItem(this)" 
+                                                        class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all duration-200">
+                                                    <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
+                                            
+                                            <!-- Image name -->
+                                            <div class="p-2">
+                                                <span class="text-gray-300 text-xs truncate block" title="{{ image.name }}">{{ image.name }}</span>
+                                            </div>
                                         </div>
-                                        {% set item_index = image_index %}
                                     {% endfor %}
                                 </div>
                             </div>
                         {% endif %}
                     </div>
-                    {% set item_index = item_index + item.images|length %}
+                    {% set item_index = item_index + 1 + item.images|length %}
                 {% endfor %}
             </div>
         </form>
