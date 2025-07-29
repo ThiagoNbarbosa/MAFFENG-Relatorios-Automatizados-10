@@ -81,9 +81,15 @@ def processar_zip(zip_path, dados_formulario):
             # Add images to content
             for imagem_path in arquivos_imagens:
                 # Copy image to temporary location for processing
-                temp_image_path = os.path.join(tempfile.gettempdir(), f"temp_img_{os.path.basename(imagem_path)}")
-                shutil.copy2(imagem_path, temp_image_path)
-                conteudo.append({"imagem": temp_image_path})
+                import uuid
+                unique_id = str(uuid.uuid4())[:8]
+                temp_image_path = os.path.join(tempfile.gettempdir(), f"temp_img_{unique_id}_{os.path.basename(imagem_path)}")
+                try:
+                    shutil.copy2(imagem_path, temp_image_path)
+                    print(f"Copied image: {os.path.basename(imagem_path)} -> {temp_image_path}")
+                    conteudo.append({"imagem": temp_image_path})
+                except Exception as e:
+                    print(f"Error copying image {imagem_path}: {e}")
             
             # Add page break after each folder section
             if arquivos_imagens:  # Only add page break if there were images
@@ -250,45 +256,92 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
             if 'imagem' in item:
                 # Process image insertion
                 imagem_path = item["imagem"]
-                if os.path.exists(imagem_path) and os.path.getsize(imagem_path) > 0:
-                    try:
+                print(f"Processing image: {imagem_path}")
+                
+                # Validate image file exists and has content
+                if not os.path.exists(imagem_path):
+                    print(f"Error: Image file does not exist: {imagem_path}")
+                    continue
+                    
+                if os.path.getsize(imagem_path) == 0:
+                    print(f"Error: Image file is empty: {imagem_path}")
+                    continue
+                
+                try:
+                    # Validate image format first
+                    with Image.open(imagem_path) as img:
+                        img.verify()  # Verify image integrity
+                    
+                    # Re-open for actual processing (verify() closes the file)
+                    with Image.open(imagem_path) as img:
+                        largura_original, altura_original = img.size
+                        formato = img.format
+                        
+                        print(f"Image details: {os.path.basename(imagem_path)} - {largura_original}x{altura_original} pixels, format: {formato}")
+                        
+                        # Convert image to RGB if necessary (for JPEG compatibility)
+                        if img.mode not in ('RGB', 'L'):
+                            img = img.convert('RGB')
+                            # Save converted image to temporary file
+                            temp_converted_path = imagem_path.replace('.png', '_converted.jpg')
+                            img.save(temp_converted_path, 'JPEG', quality=95)
+                            imagem_path = temp_converted_path
+                            print(f"Converted image to RGB: {temp_converted_path}")
+                        
+                        altura_desejada_cm = 10  # Fixed height as specified
+                        
+                        # Calculate proportional width using correct DPI conversion
+                        # Standard DPI conversion: 96 pixels = 2.54 cm (1 inch)
+                        pixels_per_cm = 96 / 2.54  # approximately 37.8 pixels per cm
+                        altura_original_cm = altura_original / pixels_per_cm
+                        largura_original_cm = largura_original / pixels_per_cm
+                        
+                        # Calculate proportional width maintaining aspect ratio
+                        aspect_ratio = largura_original_cm / altura_original_cm
+                        largura_proporcional_cm = altura_desejada_cm * aspect_ratio
+                        
+                        # Limit maximum width to prevent page overflow
+                        max_width_cm = 15  # Maximum width for document
+                        if largura_proporcional_cm > max_width_cm:
+                            largura_proporcional_cm = max_width_cm
+                            altura_desejada_cm = max_width_cm / aspect_ratio
+                        
+                        print(f"Inserting image: {os.path.basename(imagem_path)} - {largura_proporcional_cm:.2f}cm x {altura_desejada_cm:.2f}cm")
+                        
                         # Insert image paragraph
                         p = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
                         
-                        # Calculate image dimensions
-                        with Image.open(imagem_path) as img:
-                            largura_original, altura_original = img.size
-                            altura_desejada_cm = 10  # Fixed height as specified
-                            
-                            # Calculate proportional width
-                            ratio = altura_desejada_cm / (altura_original / 28.35)  # Convert pixels to cm
-                            largura_proporcional_cm = (largura_original / 28.35) * ratio
-                            
-                            # Insert image
-                            run = p.add_run()
-                            run.add_picture(
-                                imagem_path,
-                                width=Cm(largura_proporcional_cm),
-                                height=Cm(altura_desejada_cm)
-                            )
-                            p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-                            contador_imagens += 1
-                            
-                            # Add single paragraph break after image for better spacing
-                            p_break = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
+                        # Insert image
+                        run = p.add_run()
+                        run.add_picture(
+                            imagem_path,
+                            width=Cm(largura_proporcional_cm),
+                            height=Cm(altura_desejada_cm)
+                        )
+                        p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                        contador_imagens += 1
                         
-                        # Clean up temporary image file
-                        try:
-                            os.remove(imagem_path)
-                        except:
-                            pass  # Ignore cleanup errors
+                        # Add single paragraph break after image for better spacing
+                        p_break = doc.paragraphs[paragrafo_insercao_index].insert_paragraph_before('')
+                        
+                        print(f"Successfully inserted image #{contador_imagens}: {os.path.basename(imagem_path)}")
                     
-                    except UnidentifiedImageError:
-                        print(f"Error: Unrecognized image format: {imagem_path}")
-                    except Exception as e:
-                        print(f"Error inserting image '{imagem_path}': {e}")
-                else:
-                    print(f"Error: Invalid image file: {imagem_path}")
+                    # Clean up temporary image files
+                    try:
+                        os.remove(imagem_path)
+                        if 'converted' in imagem_path:
+                            original_path = imagem_path.replace('_converted.jpg', '.png')
+                            if os.path.exists(original_path):
+                                os.remove(original_path)
+                    except Exception as cleanup_error:
+                        print(f"Warning: Could not clean up temporary file {imagem_path}: {cleanup_error}")
+                
+                except UnidentifiedImageError as e:
+                    print(f"Error: Unrecognized or corrupted image format: {imagem_path} - {e}")
+                except Exception as e:
+                    print(f"Error inserting image '{imagem_path}': {e}")
+                    import traceback
+                    print(f"Full error traceback: {traceback.format_exc()}")
             
             elif 'quebra_pagina' in item:
                 # Insert page break
