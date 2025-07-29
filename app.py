@@ -177,11 +177,20 @@ def reset_configuracoes():
 @app.route('/preview')
 def preview():
     """Preview page showing folder structure and images before generating report"""
-    if 'conteudo_estruturado' not in session:
+    if 'temp_content_file' not in session:
         flash('Dados não encontrados. Por favor, faça o upload novamente.', 'error')
         return redirect(url_for('index'))
     
-    conteudo_estruturado = session['conteudo_estruturado']
+    # Load content from temporary file
+    import pickle
+    temp_content_file = session['temp_content_file']
+    try:
+        with open(temp_content_file, 'rb') as f:
+            conteudo_estruturado = pickle.load(f)
+    except FileNotFoundError:
+        flash('Dados temporários não encontrados. Por favor, faça upload novamente.', 'error')
+        return redirect(url_for('index'))
+    
     form_data = session['form_data']
     
     # Organize content for preview
@@ -304,11 +313,20 @@ def generate_report():
         if os.path.exists(zip_path):
             os.remove(zip_path)
 
+        # Clean up temporary content file
+        temp_content_file = session.get('temp_content_file')
+        if temp_content_file and os.path.exists(temp_content_file):
+            try:
+                os.remove(temp_content_file)
+            except Exception as e:
+                app.logger.warning(f"Could not remove temporary file {temp_content_file}: {e}")
+        
         # Clear session data
         session.pop('form_data', None)
         session.pop('zip_path', None)
-        session.pop('conteudo_estruturado', None)
+        session.pop('conteudo_count', None)
         session.pop('modelo_path', None)
+        session.pop('temp_content_file', None)
 
         # Success message
         flash(f'Relatório gerado com sucesso! {num_imagens} imagens inseridas.', 'success')
@@ -379,11 +397,19 @@ def processar_upload():
         app.logger.info(f"Processing ZIP file: {zip_path}")
         conteudo_estruturado = processar_zip(zip_path, form_data)
 
-        # Store data in session for preview page
+        # Store data in session for preview page (optimized for size)
         session['form_data'] = form_data
         session['zip_path'] = zip_path
-        session['conteudo_estruturado'] = conteudo_estruturado
+        # Store only structure, not the full image paths to reduce session size
+        session['conteudo_count'] = len(conteudo_estruturado)
         session['modelo_path'] = modelo_path
+        
+        # Store content in a temporary file instead of session
+        import tempfile, pickle
+        temp_content_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pkl')
+        with open(temp_content_file.name, 'wb') as f:
+            pickle.dump(conteudo_estruturado, f)
+        session['temp_content_file'] = temp_content_file.name
 
         # Redirect to preview page
         return redirect(url_for('preview'))

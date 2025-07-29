@@ -201,9 +201,14 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
     """
     print(f"Loading Word template: {modelo_path}")
     
+    # Count total images in content for tracking
+    total_images = sum(1 for item in conteudo if isinstance(item, dict) and 'imagem' in item)
+    print(f"Total images to process: {total_images}")
+    
     # Load Word document
     doc = Document(modelo_path)
     contador_imagens = 0
+    images_processed = 0
     
     # Replace placeholders first
     substituir_placeholders(doc, dados_formulario, placeholders)
@@ -256,7 +261,8 @@ def inserir_conteudo_word(modelo_path, conteudo, placeholders, dados_formulario,
             if 'imagem' in item:
                 # Process image insertion
                 imagem_path = item["imagem"]
-                print(f"Processing image: {imagem_path}")
+                images_processed += 1
+                print(f"Processing image {images_processed}/{total_images}: {imagem_path}")
                 
                 # Validate image file exists and has content
                 if not os.path.exists(imagem_path):
