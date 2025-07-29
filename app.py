@@ -227,9 +227,13 @@ def preview():
             # Skip page breaks in preview
             continue
     
+    # Calculate total images
+    total_photos = sum(len(item.get('images', [])) for item in preview_items if item.get('type') == 'folder')
+    
     return render_template('preview.html', 
                          preview_items=preview_items,
-                         form_data=form_data)
+                         form_data=form_data,
+                         total_photos=total_photos)
 
 @app.route('/generate-report', methods=['POST'])
 def generate_report():
