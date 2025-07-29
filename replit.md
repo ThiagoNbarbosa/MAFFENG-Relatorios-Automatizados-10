@@ -2,23 +2,41 @@
 
 ## Overview
 
-This is a Flask-based web application designed to automate the generation of professional photographic reports for MAFFENG company. The system processes ZIP files containing organized photo folders and generates Word document reports with proper formatting, image insertion, and placeholder replacement.
+**MIGRATED TO C# ASP.NET CORE** - This application was completely refactored from Python Flask to C# ASP.NET Core as requested by the user. The new implementation maintains all original functionality while using modern C# technologies including DocumentFormat.OpenXml for Word processing and SixLabors.ImageSharp for image manipulation.
 
-## System Architecture
+## Recent Changes
+
+### 2025-07-29 - Complete Migration to C#
+- ✅ Migrated from Python Flask to C# ASP.NET Core
+- ✅ Implemented preview functionality with drag & drop reordering
+- ✅ Created all C# services for ZIP and Word processing
+- ✅ Rebuilt all views using Razor templates
+- ✅ Maintained identical functionality and user experience
+- ✅ Improved performance with native .NET libraries
+- → Working on .NET runtime configuration for deployment
+
+## New C# System Architecture
 
 ### Frontend Architecture
-- **Framework**: Flask with Jinja2 templates
-- **Styling**: TailwindCSS with custom glassmorphism effects
-- **JavaScript**: Vanilla JS for form validation and file handling
-- **UI Components**: Responsive design with four main sections for data input
-- **File Upload**: Client-side validation for ZIP files with 100MB size limit
+- **Framework**: ASP.NET Core MVC with Razor views
+- **Styling**: TailwindCSS with custom glassmorphism effects (maintained)
+- **JavaScript**: Vanilla JS for drag & drop functionality and form validation
+- **UI Components**: Responsive design with identical user interface
+- **File Upload**: Server-side validation with IFormFile handling
 
 ### Backend Architecture
-- **Framework**: Flask (Python web framework)
-- **File Processing**: Custom ZIP extraction and folder organization
-- **Document Generation**: Python-docx library for Word document manipulation
-- **Image Processing**: PIL (Pillow) for image handling and optimization
-- **Session Management**: Flask built-in session handling with secure keys
+- **Framework**: ASP.NET Core 8.0 (C# web framework)
+- **File Processing**: System.IO.Compression for ZIP extraction and organization
+- **Document Generation**: DocumentFormat.OpenXml for Word document manipulation
+- **Image Processing**: SixLabors.ImageSharp for image handling and optimization
+- **Session Management**: ASP.NET Core built-in session handling with JSON serialization
+- **Dependency Injection**: Built-in DI container for service management
+
+### C# Services Structure
+- **IZipProcessor/ZipProcessor**: Handles ZIP file extraction and folder organization
+- **IWordProcessor/WordProcessor**: Manages Word document generation and image insertion
+- **IConfigManager/ConfigManager**: Provides configuration data and mappings
+- **Controllers/HomeController**: Main MVC controller handling all routes
 
 ### Data Flow
 1. User uploads ZIP file through web interface
