@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Configure session
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -11,10 +14,22 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Register custom services
-builder.Services.AddScoped<IWordProcessor, WordProcessor>();
+// Configure dependency injection
 builder.Services.AddScoped<IZipProcessor, ZipProcessor>();
+builder.Services.AddScoped<IWordProcessor, WordProcessor>();
 builder.Services.AddScoped<IConfigManager, ConfigManager>();
+
+// Configure static files
+builder.Services.AddHttpContextAccessor();
+
+// Ensure directories exist
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "output");
+var modelsPath = Path.Combine(Directory.GetCurrentDirectory(), "models");
+
+Directory.CreateDirectory(uploadsPath);
+Directory.CreateDirectory(outputPath);
+Directory.CreateDirectory(modelsPath);
 
 var app = builder.Build();
 
@@ -25,20 +40,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseSession();
+
 app.UseAuthorization();
-
-// Ensure directories exist
-var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "output");
-var modelsPath = Path.Combine(Directory.GetCurrentDirectory(), "models");
-
-Directory.CreateDirectory(uploadsPath);
-Directory.CreateDirectory(outputPath);
-Directory.CreateDirectory(modelsPath);
 
 app.MapControllerRoute(
     name: "default",

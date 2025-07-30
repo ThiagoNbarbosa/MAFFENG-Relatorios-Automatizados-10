@@ -1,111 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - MAFFENG - Gerador de Relatórios Fotográficos</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="~/images/favicon.png">
-    <link rel="shortcut icon" type="image/png" href="~/images/favicon.png">
-    
-    <!-- Tailwind CSS -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MAFFENG</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="~/css/style.css">
-    
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1a1a2e',
-                        secondary: '#16213e',
-                        accent: '#0f3460',
-                        glass: 'rgba(255, 255, 255, 0.1)'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="min-h-screen bg-gradient-to-br from-primary via-secondary to-accent text-white">
-    <!-- Background Pattern -->
-    <div class="fixed inset-0 opacity-10">
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>')]"></div>
-    </div>
-    
-    <!-- Navigation -->
-    <nav class="relative z-10 glass-card border-b border-white/20">
-        <div class="container mx-auto px-5 py-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-5">
-                    <div class="w-20 h-20 flex items-center justify-center">
-                        <img src="~/images/maffeng-logo.png" 
-                             alt="MAFFENG Logo" 
-                             class="w-full h-full object-contain">
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold">MAFFENG</h1>
-                        <p class="text-xl text-gray-300">Gerador de Relatórios Fotográficos</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-xl text-gray-300">Engenharia e Manutenção</p>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <main class="relative z-10 container mx-auto px-4 py-8">
-        <!-- Flash Messages -->
-        @if (TempData["Success"] != null)
-        {
-            <div class="mb-6 p-4 bg-green-600/20 border border-green-400 rounded-lg flex items-center space-x-3">
-                <i class="fas fa-check-circle text-green-400"></i>
-                <span class="text-green-100">@TempData["Success"]</span>
-            </div>
-        }
-        
-        @if (TempData["Error"] != null)
-        {
-            <div class="mb-6 p-4 bg-red-600/20 border border-red-400 rounded-lg flex items-center space-x-3">
-                <i class="fas fa-exclamation-circle text-red-400"></i>
-                <span class="text-red-100">@TempData["Error"]</span>
-            </div>
-        }
-        
-        @RenderBody()
-    </main>
     
     <style>
         .glass-card {
-            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
         .glass-input {
+            backdrop-filter: blur(5px);
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .glass-input:focus {
             background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(59, 130, 246, 0.6);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .bg-gradient-maffeng {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
     </style>
+</head>
+<body class="bg-gradient-maffeng min-h-screen text-white">
+    <header>
+        <nav class="glass-card border-b border-white/20 p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <img src="/LOGO.png" alt="MAFFENG Logo" class="h-10 w-auto" />
+                    <h1 class="text-xl font-bold">MAFFENG - Gerador de Relatórios</h1>
+                </div>
+                <div class="flex space-x-4">
+                    <a asp-controller="Home" asp-action="Index" class="text-white hover:text-blue-300 transition-colors">
+                        <i class="fas fa-home mr-1"></i>Início
+                    </a>
+                    <a asp-controller="Home" asp-action="Configuracoes" class="text-white hover:text-blue-300 transition-colors">
+                        <i class="fas fa-cog mr-1"></i>Configurações
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        @RenderBody()
+    </main>
+
+    <footer class="glass-card border-t border-white/20 p-4 mt-auto">
+        <div class="container mx-auto text-center text-gray-300">
+            <p>&copy; 2025 MAFFENG - Gerador de Relatórios Fotográficos</p>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

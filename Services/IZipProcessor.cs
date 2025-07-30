@@ -5,5 +5,6 @@ namespace MAFFENG.Services
     public interface IZipProcessor
     {
         Task<List<object>> ProcessZipAsync(string zipPath, UploadFormModel formData);
+        Task<byte[]> GenerateThumbnailAsync(string imagePath);
     }
 }
