@@ -1,287 +1,202 @@
 @model MAFFENG.Models.PreviewModel
+
 @{
-    ViewBag.Title = "Preview do Relatório";
+    ViewData["Title"] = "Preview do Relatório";
 }
 
-<div class="space-y-8">
+<div class="space-y-6">
     <!-- Header -->
-    <div class="glass-card rounded-2xl p-8">
+    <div class="glass-card rounded-2xl p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-3xl font-bold mb-2">Preview do Relatório</h2>
-                <p class="text-gray-300">Verifique a ordem e os títulos antes de gerar o documento final</p>
-                <p class="text-sm text-blue-300 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Projeto: @Model.FormData.NomeProjeto
-                </p>
+                <h1 class="text-3xl font-bold">Preview do Relatório</h1>
+                <p class="text-gray-300 mt-2">Projeto: @Model.FormData.NomeProjeto</p>
             </div>
             <div class="text-right">
-                <button onclick="generateReport()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg transition-colors font-medium">
-                    <i class="fas fa-file-word mr-2"></i>
-                    Confirmar e Gerar Relatório
-                </button>
+                <div class="text-sm text-gray-300">Total de imagens:</div>
+                <div class="text-2xl font-bold text-green-400" id="total-images">
+                    @Model.PreviewItems.Sum(item => item.Images.Count)
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Preview Content -->
-    <div class="glass-card rounded-2xl p-8">
-        <div class="mb-6">
-            <h3 class="text-xl font-semibold mb-4">Estrutura do Relatório</h3>
-            <p class="text-gray-300 text-sm mb-4">
-                <i class="fas fa-hand-point-up mr-1"></i>
-                Arraste os itens para reordenar, clique nos títulos para editar, ou use o botão de lixeira para remover
-            </p>
-        </div>
-
-        <form id="previewForm" method="POST" asp-action="GenerateReport">
-            <div id="sortable-list" class="space-y-4">
+    <div class="glass-card rounded-2xl p-6">
+        <form asp-action="GenerateReport" method="post" id="preview-form">
+            <div id="sortable-content" class="space-y-4">
                 @{
                     int itemIndex = 0;
                 }
                 @foreach (var item in Model.PreviewItems)
                 {
-                    <!-- Folder Section -->
-                    <div class="preview-item bg-white/5 border border-white/20 rounded-lg p-4" data-type="folder" data-index="@itemIndex">
-                        <input type="hidden" name="item_type_@itemIndex" value="folder">
-                        <input type="hidden" name="item_original_@itemIndex" value="@item.OriginalTitle">
-                        <input type="hidden" name="item_level_@itemIndex" value="@item.Level">
-                        
+                    <!-- Folder Title -->
+                    <div class="preview-item bg-blue-500/20 border border-blue-500/30 rounded-lg p-4" data-type="folder">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3 flex-1">
-                                <div class="drag-handle cursor-move text-gray-400 hover:text-white">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <i class="fas fa-folder text-yellow-400"></i>
-                                    <span class="level-indicator">
-                                        @for (int i = 0; i < item.Level; i++)
-                                        {
-                                            <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-                                        }
-                                    </span>
-                                </div>
-                                <input type="text" 
-                                       name="item_title_@itemIndex" 
-                                       value="@item.Title" 
-                                       class="bg-transparent border border-white/30 rounded px-3 py-1 text-white flex-1 min-w-0 focus:outline-none focus:border-blue-400"
-                                       placeholder="Título da seção">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-grip-vertical text-gray-400 cursor-move"></i>
+                                <i class="fas fa-folder text-blue-400"></i>
+                                <span class="font-medium">@item.Title</span>
+                                <span class="text-sm text-gray-400">(@item.Images.Count imagens)</span>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm text-gray-400">
-                                    @item.Images.Count
-                                    @if (item.Images.Count == 1) { <text>imagem</text> } else { <text>imagens</text> }
-                                </span>
-                                <button type="button" onclick="removeItem(this)" class="text-red-400 hover:text-red-300 p-1">
-                                    <i class="fas fa-trash"></i>
+                                <button type="button" class="text-gray-400 hover:text-white" onclick="toggleFolder(this)">
+                                    <i class="fas fa-chevron-down"></i>
                                 </button>
                             </div>
                         </div>
                         
-                        <!-- Images in this folder -->
-                        @if (item.Images.Any())
-                        {
-                            <div class="mt-4 ml-8">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                    @foreach (var image in item.Images)
-                                    {
-                                        itemIndex++;
-                                        <div class="preview-item bg-white/5 border border-white/10 rounded p-2 text-sm" data-type="image" data-index="@itemIndex">
-                                            <input type="hidden" name="item_type_@itemIndex" value="image">
-                                            <input type="hidden" name="item_path_@itemIndex" value="@image.Path">
-                                            
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center space-x-2 flex-1 min-w-0">
-                                                    <i class="fas fa-image text-blue-400 text-xs"></i>
-                                                    <span class="text-gray-300 truncate">@image.Name</span>
-                                                </div>
-                                                <button type="button" onclick="removeItem(this)" class="text-red-400 hover:text-red-300 p-1 ml-2">
-                                                    <i class="fas fa-trash text-xs"></i>
-                                                </button>
-                                            </div>
+                        <!-- Hidden inputs for folder -->
+                        <input type="hidden" name="item_type_@(itemIndex)" value="folder" />
+                        <input type="hidden" name="item_title_@(itemIndex)" value="@item.Title" />
+                        <input type="hidden" name="item_level_@(itemIndex)" value="@item.Level" />
+                        
+                        @{ itemIndex++; }
+                        
+                        <!-- Folder Images -->
+                        <div class="folder-images mt-4 grid grid-cols-4 gap-4" style="display: block;">
+                            @foreach (var image in item.Images)
+                            {
+                                <div class="preview-item image-item bg-gray-500/20 border border-gray-500/30 rounded-lg p-3" data-type="image">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <i class="fas fa-grip-vertical text-gray-400 cursor-move text-xs"></i>
+                                        <i class="fas fa-image text-green-400 text-sm"></i>
+                                        <span class="text-sm truncate">@image.Name</span>
+                                    </div>
+                                    
+                                    <!-- Thumbnail -->
+                                    <div class="relative">
+                                        <img src="@Url.Action("Thumbnail", new { imagePath = image.Path })" 
+                                             alt="@image.Name" 
+                                             class="w-full h-20 object-cover rounded border border-gray-600"
+                                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEI1NTYzIi8+CjxwYXRoIGQ9Ik0zNSA2NUw0NSA1NUw2MCA3MEw3NSA1NUw4NSA2NVY3NUgzNVY2NVoiIGZpbGw9IiM5Q0E5QjQiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNSIgZmlsbD0iIzlDQTlCNCIvPgo8L3N2Zz4K'" />
+                                        <div class="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <button type="button" class="text-white hover:text-red-400" onclick="removeImage(this)">
+                                                <i class="fas fa-trash text-sm"></i>
+                                            </button>
                                         </div>
-                                    }
+                                    </div>
+                                    
+                                    <!-- Hidden inputs for image -->
+                                    <input type="hidden" name="item_type_@(itemIndex)" value="image" />
+                                    <input type="hidden" name="item_path_@(itemIndex)" value="@image.Path" />
                                 </div>
-                            </div>
-                        }
+                                
+                                @{ itemIndex++; }
+                            }
+                        </div>
                     </div>
-                    itemIndex++;
                 }
             </div>
-        </form>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-between items-center mt-8 pt-6 border-t border-white/20">
-            <a asp-action="Index" class="text-gray-400 hover:text-white transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>
-                Voltar ao Formulário
-            </a>
-            
-            <div class="space-x-4">
-                <button onclick="resetOrder()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-undo mr-2"></i>
-                    Restaurar Ordem Original
-                </button>
-                <button onclick="generateReport()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg transition-colors font-medium">
-                    <i class="fas fa-file-word mr-2"></i>
-                    Confirmar e Gerar Relatório
-                </button>
+            <!-- Action Buttons -->
+            <div class="flex justify-between items-center mt-8">
+                <a asp-action="Index" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Voltar
+                </a>
+                
+                <div class="space-x-4">
+                    <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors" onclick="updatePreview()">
+                        <i class="fas fa-sync mr-2"></i>
+                        Atualizar Preview
+                    </button>
+                    
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors">
+                        <i class="fas fa-file-word mr-2"></i>
+                        Gerar Relatório Word
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
-<script>
-// Make list sortable
-let sortableList = document.getElementById('sortable-list');
-let draggedElement = null;
-
-// Add drag and drop functionality
-sortableList.addEventListener('dragstart', function(e) {
-    if (e.target.closest('.preview-item[data-type="folder"]')) {
-        draggedElement = e.target.closest('.preview-item[data-type="folder"]');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', draggedElement.outerHTML);
-        draggedElement.style.opacity = '0.5';
-    }
-});
-
-sortableList.addEventListener('dragend', function(e) {
-    if (draggedElement) {
-        draggedElement.style.opacity = '';
-        draggedElement = null;
-    }
-});
-
-sortableList.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-});
-
-sortableList.addEventListener('drop', function(e) {
-    e.preventDefault();
-    if (draggedElement) {
-        let target = e.target.closest('.preview-item[data-type="folder"]');
-        if (target && target !== draggedElement) {
-            let rect = target.getBoundingClientRect();
-            let insertBefore = e.clientY < rect.top + rect.height / 2;
-            
-            if (insertBefore) {
-                target.parentNode.insertBefore(draggedElement, target);
-            } else {
-                target.parentNode.insertBefore(draggedElement, target.nextSibling);
-            }
-            
-            updateItemIndices();
-        }
-    }
-});
-
-// Enable dragging for folder items
-document.querySelectorAll('.preview-item[data-type="folder"]').forEach(item => {
-    item.draggable = true;
-});
-
-// Enable dragging on drag handles
-document.querySelectorAll('.drag-handle').forEach(handle => {
-    handle.addEventListener('mousedown', function(e) {
-        let item = this.closest('.preview-item[data-type="folder"]');
-        if (item) {
-            item.draggable = true;
-        }
-    });
-});
-
-function removeItem(button) {
-    if (confirm('Tem certeza que deseja remover este item?')) {
-        let item = button.closest('.preview-item');
-        item.remove();
-        updateItemIndices();
-    }
-}
-
-function updateItemIndices() {
-    let items = document.querySelectorAll('.preview-item');
-    let folderIndex = 0;
-    let imageIndex = 1000; // Start images from a high number to avoid conflicts
-    
-    items.forEach((item, index) => {
-        let type = item.dataset.type;
-        let oldIndex = item.dataset.index;
-        let newIndex;
-        
-        if (type === 'folder') {
-            newIndex = folderIndex;
-            folderIndex += 1;
-        } else {
-            newIndex = imageIndex;
-            imageIndex += 1;
-        }
-        
-        // Update all input names in this item
-        item.querySelectorAll('input').forEach(input => {
-            if (input.name) {
-                input.name = input.name.replace(oldIndex, newIndex);
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        // Initialize Sortable for main content
+        new Sortable(document.getElementById('sortable-content'), {
+            handle: '.fa-grip-vertical',
+            animation: 150,
+            onEnd: function(evt) {
+                updateIndexes();
             }
         });
-        
-        item.dataset.index = newIndex;
-    });
-}
 
-function resetOrder() {
-    if (confirm('Tem certeza que deseja restaurar a ordem original?')) {
-        location.reload();
-    }
-}
+        // Initialize Sortable for each folder's images
+        document.querySelectorAll('.folder-images').forEach(folder => {
+            new Sortable(folder, {
+                handle: '.fa-grip-vertical',
+                animation: 150,
+                onEnd: function(evt) {
+                    updateIndexes();
+                }
+            });
+        });
 
-function generateReport() {
-    // Update indices one final time before submission
-    updateItemIndices();
-    
-    // Show loading state
-    let button = event.target;
-    let originalText = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Gerando Relatório...';
-    button.disabled = true;
-    
-    // Submit form
-    document.getElementById('previewForm').submit();
-}
+        function toggleFolder(button) {
+            const folderImages = button.closest('.preview-item').querySelector('.folder-images');
+            const icon = button.querySelector('i');
+            
+            if (folderImages.style.display === 'none') {
+                folderImages.style.display = 'block';
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                folderImages.style.display = 'none';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-right');
+            }
+        }
 
-// Initialize
-updateItemIndices();
-</script>
+        function removeImage(button) {
+            if (confirm('Tem certeza que deseja remover esta imagem?')) {
+                const imageItem = button.closest('.image-item');
+                imageItem.remove();
+                updateIndexes();
+                updateImageCount();
+            }
+        }
 
-<style>
-.preview-item {
-    transition: all 0.3s ease;
-}
+        function updateIndexes() {
+            const items = document.querySelectorAll('.preview-item');
+            let index = 0;
+            
+            items.forEach(item => {
+                const inputs = item.querySelectorAll('input[type="hidden"]');
+                inputs.forEach(input => {
+                    const name = input.name.replace(/_\d+$/, `_${index}`);
+                    input.name = name;
+                });
+                index++;
+            });
+        }
 
-.preview-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
+        function updateImageCount() {
+            const imageCount = document.querySelectorAll('.image-item').length;
+            document.getElementById('total-images').textContent = imageCount;
+        }
 
-.drag-handle:hover {
-    cursor: grab;
-}
+        function updatePreview() {
+            updateIndexes();
+            updateImageCount();
+            
+            // Show success message
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-2"></i>Atualizado!';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        }
 
-.drag-handle:active {
-    cursor: grabbing;
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateIndexes();
+        });
+    </script>
 }
-
-.preview-item.dragging {
-    opacity: 0.5;
-    transform: rotate(5deg);
-}
-
-.level-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-}
-
-input[type="text"]:focus {
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-}
-</style>
