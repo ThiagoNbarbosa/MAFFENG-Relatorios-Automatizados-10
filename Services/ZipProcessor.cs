@@ -1,5 +1,7 @@
 using System.IO.Compression;
 using MAFFENG.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace MAFFENG.Services
 {
@@ -125,6 +127,34 @@ namespace MAFFENG.Services
 
                 // Recursively process subdirectories
                 await ProcessDirectoryAsync(dir, rootPath, conteudo);
+            }
+        }
+
+        public async Task<byte[]> GenerateThumbnailAsync(string imagePath)
+        {
+            try
+            {
+                if (!File.Exists(imagePath))
+                {
+                    throw new FileNotFoundException($"Image not found: {imagePath}");
+                }
+
+                using var image = await SixLabors.ImageSharp.Image.LoadAsync(imagePath);
+                
+                // Create thumbnail (100x100)
+                image.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Size = new SixLabors.ImageSharp.Size(100, 100),
+                    Mode = ResizeMode.Max
+                }));
+
+                using var memoryStream = new MemoryStream();
+                await image.SaveAsJpegAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error generating thumbnail: {ex.Message}", ex);
             }
         }
     }

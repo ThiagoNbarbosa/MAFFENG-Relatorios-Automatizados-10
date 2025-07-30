@@ -1,193 +1,150 @@
 @model MAFFENG.Models.UploadFormModel
+
 @{
-    ViewBag.Title = "Upload de Arquivos";
+    ViewData["Title"] = "Gerador de Relatórios";
 }
 
 <div class="space-y-8">
-    <!-- Header -->
+    <!-- Header with Logo -->
     <div class="glass-card rounded-2xl p-8 text-center">
-        <h2 class="text-4xl font-bold mb-4">Gerador de Relatórios Fotográficos</h2>
-        <p class="text-xl text-gray-300">Faça o upload do arquivo ZIP com as fotos organizadas em pastas</p>
+        <div class="flex flex-col items-center">
+            <img src="/LOGO.png" alt="MAFFENG Logo" class="h-24 w-auto mb-4" />
+            <h1 class="text-4xl font-bold mb-2">Gerador de Relatórios Fotográficos</h1>
+            <p class="text-gray-300 text-lg">Sistema automatizado para geração de relatórios de levantamento preventivo</p>
+        </div>
     </div>
 
-    <!-- Form -->
+    <!-- Upload Form -->
     <div class="glass-card rounded-2xl p-8">
-        <form asp-action="Upload" method="post" enctype="multipart/form-data" id="uploadForm">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                <!-- Left Column - Project Info -->
-                <div class="space-y-6">
-                    <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-project-diagram mr-3 text-blue-400"></i>
-                        Informações do Projeto
-                    </h3>
-                    
+        <h2 class="text-2xl font-bold mb-6">
+            <i class="fas fa-upload mr-2"></i>
+            Dados do Projeto
+        </h2>
+
+        <form asp-action="ProcessUpload" method="post" enctype="multipart/form-data" class="space-y-6">
+            <!-- Project Information Section -->
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-project-diagram mr-2 text-blue-400"></i>
+                    Informações do Projeto
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label asp-for="NomeProjeto" class="block text-sm font-medium mb-2">Nome do Projeto *</label>
-                        <input asp-for="NomeProjeto" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Digite o nome do projeto">
+                        <input asp-for="NomeProjeto" type="text" class="glass-input w-full px-4 py-2 rounded-lg text-white placeholder-gray-400 focus:outline-none" 
+                               placeholder="Digite o nome do projeto" required />
                         <span asp-validation-for="NomeProjeto" class="text-red-400 text-sm"></span>
                     </div>
-
                     <div>
-                        <label asp-for="ModeloSelecionado" class="block text-sm font-medium mb-2">Modelo do Documento *</label>
-                        <select asp-for="ModeloSelecionado" class="w-full px-4 py-3 rounded-lg glass-input text-white focus:outline-none transition-all">
-                            <option value="">Selecione o modelo</option>
-                            @foreach (var modelo in ViewBag.Modelos as Dictionary<string, string>)
-                            {
-                                <option value="@modelo.Key">@modelo.Value</option>
-                            }
+                        <label asp-for="ModeloSelecionado" class="block text-sm font-medium mb-2">Modelo de Relatório *</label>
+                        <select asp-for="ModeloSelecionado" class="glass-input w-full px-4 py-2 rounded-lg text-white focus:outline-none" required>
+                            <option value="">Selecione um modelo</option>
+                            <option value="modelo_3575">Modelo 3575 - Mato Grosso</option>
+                            <option value="modelo_6122">Modelo 6122 - Mato Grosso do Sul</option>
+                            <option value="modelo_0908">Modelo 0908 - São Paulo</option>
+                            <option value="modelo_2056">Modelo 2056 - Divinópolis</option>
+                            <option value="modelo_2057">Modelo 2057 - Varginha</option>
                         </select>
                         <span asp-validation-for="ModeloSelecionado" class="text-red-400 text-sm"></span>
-                    </div>
-
-                    <div>
-                        <label asp-for="NumeroContrato" class="block text-sm font-medium mb-2">Número do Contrato</label>
-                        <input asp-for="NumeroContrato" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Número do contrato">
-                    </div>
-
-                    <div>
-                        <label asp-for="OrdemServico" class="block text-sm font-medium mb-2">Ordem de Serviço</label>
-                        <input asp-for="OrdemServico" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Ordem de serviço">
-                    </div>
-
-                    <div>
-                        <label asp-for="DataElaboracao" class="block text-sm font-medium mb-2">Data de Elaboração</label>
-                        <input asp-for="DataElaboracao" type="date" class="w-full px-4 py-3 rounded-lg glass-input text-white focus:outline-none transition-all">
-                    </div>
-                </div>
-
-                <!-- Right Column - Dependency Info -->
-                <div class="space-y-6">
-                    <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-building mr-3 text-green-400"></i>
-                        Informações da Dependência
-                    </h3>
-
-                    <div>
-                        <label asp-for="PrefixoAgencia" class="block text-sm font-medium mb-2">Prefixo da Agência</label>
-                        <input asp-for="PrefixoAgencia" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Prefixo da agência">
-                    </div>
-
-                    <div>
-                        <label asp-for="NomeDependencia" class="block text-sm font-medium mb-2">Nome da Dependência</label>
-                        <input asp-for="NomeDependencia" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Nome da dependência">
-                    </div>
-
-                    <div>
-                        <label asp-for="UF" class="block text-sm font-medium mb-2">UF</label>
-                        <select asp-for="UF" class="w-full px-4 py-3 rounded-lg glass-input text-white focus:outline-none transition-all">
-                            <option value="">Selecione o estado</option>
-                            @foreach (var estado in ViewBag.Estados as List<string>)
-                            {
-                                <option value="@estado">@estado</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div>
-                        <label asp-for="EnderecoCompleto" class="block text-sm font-medium mb-2">Endereço Completo</label>
-                        <textarea asp-for="EnderecoCompleto" rows="3" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all resize-none" placeholder="Endereço completo da dependência"></textarea>
-                    </div>
-
-                    <div>
-                        <label asp-for="ResponsavelDependencia" class="block text-sm font-medium mb-2">Responsável da Dependência</label>
-                        <input asp-for="ResponsavelDependencia" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Nome do responsável">
-                    </div>
-
-                    <div>
-                        <label asp-for="ResponsavelTecnico" class="block text-sm font-medium mb-2">Responsável Técnico</label>
-                        <input asp-for="ResponsavelTecnico" type="text" class="w-full px-4 py-3 rounded-lg glass-input text-white placeholder-gray-400 focus:outline-none transition-all" placeholder="Nome do responsável técnico">
                     </div>
                 </div>
             </div>
 
             <!-- File Upload Section -->
-            <div class="mt-8 pt-6 border-t border-white/20">
-                <h3 class="text-2xl font-semibold mb-6 flex items-center">
-                    <i class="fas fa-cloud-upload-alt mr-3 text-purple-400"></i>
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-file-archive mr-2 text-green-400"></i>
                     Upload do Arquivo ZIP
                 </h3>
-
-                <div class="space-y-4">
-                    <div>
-                        <label asp-for="ArquivoZip" class="block text-sm font-medium mb-2">Arquivo ZIP com Fotos *</label>
-                        <div class="relative">
-                            <input asp-for="ArquivoZip" type="file" accept=".zip" class="w-full px-4 py-3 rounded-lg glass-input text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700 focus:outline-none transition-all" onchange="validateFile(this)">
-                        </div>
-                        <span asp-validation-for="ArquivoZip" class="text-red-400 text-sm"></span>
-                        <p class="text-sm text-gray-400 mt-1">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Tamanho máximo: 500MB. Apenas arquivos ZIP são aceitos.
-                        </p>
-                    </div>
-
-                    <div id="file-info" class="hidden bg-blue-600/20 border border-blue-400 rounded-lg p-4">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-file-archive text-blue-400"></i>
-                            <div>
-                                <p class="font-medium text-blue-100" id="file-name"></p>
-                                <p class="text-sm text-blue-300" id="file-size"></p>
-                            </div>
-                        </div>
+                <div class="border-2 border-dashed border-white/30 rounded-xl p-8 text-center hover:border-white/50 transition-colors">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <label for="arquivo_zip" class="cursor-pointer">
+                        <span class="text-lg font-medium">Clique para selecionar o arquivo ZIP</span>
+                        <p class="text-gray-400 mt-2">Ou arraste e solte aqui</p>
+                    </label>
+                    <input asp-for="ArquivoZip" type="file" id="arquivo_zip" accept=".zip" 
+                           class="hidden" required onchange="updateFileName(this)" />
+                    <div id="file-info" class="mt-4 text-sm text-gray-300 hidden">
+                        <i class="fas fa-file-archive mr-2"></i>
+                        <span id="file-name"></span>
                     </div>
                 </div>
+                <span asp-validation-for="ArquivoZip" class="text-red-400 text-sm"></span>
             </div>
 
             <!-- Submit Button -->
-            <div class="mt-8 flex justify-center">
-                <button type="submit" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-3" id="submitBtn">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Processar e Visualizar</span>
+            <div class="text-center">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg transition-colors font-medium text-lg">
+                    <i class="fas fa-magic mr-2"></i>
+                    Processar e Gerar Preview
                 </button>
             </div>
         </form>
     </div>
+
+    <!-- Instructions -->
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-xl font-semibold mb-4">
+            <i class="fas fa-info-circle mr-2 text-blue-400"></i>
+            Instruções de Uso
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-300">
+            <div>
+                <h4 class="font-medium mb-2">📁 Estrutura do ZIP</h4>
+                <ul class="space-y-1 text-sm">
+                    <li>• Organize as fotos em pastas por área</li>
+                    <li>• Use nomes descritivos para as pastas</li>
+                    <li>• Formatos aceitos: JPG, JPEG, PNG</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-medium mb-2">⚡ Processo</h4>
+                <ul class="space-y-1 text-sm">
+                    <li>• Upload do arquivo ZIP com fotos</li>
+                    <li>• Preview para reorganizar conteúdo</li>
+                    <li>• Geração automática do relatório Word</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script>
-function validateFile(input) {
-    const fileInfo = document.getElementById('file-info');
-    const fileName = document.getElementById('file-name');
-    const fileSize = document.getElementById('file-size');
-
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const maxSize = 500 * 1024 * 1024; // 500MB
-
-        fileName.textContent = file.name;
-        fileSize.textContent = formatFileSize(file.size);
-
-        if (file.size > maxSize) {
-            alert('Arquivo muito grande. Tamanho máximo permitido: 500MB');
-            input.value = '';
-            fileInfo.classList.add('hidden');
-            return;
+@section Scripts {
+    <script>
+        function updateFileName(input) {
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            
+            if (input.files && input.files[0]) {
+                fileName.textContent = input.files[0].name;
+                fileInfo.classList.remove('hidden');
+            } else {
+                fileInfo.classList.add('hidden');
+            }
         }
 
-        if (!file.name.toLowerCase().endsWith('.zip')) {
-            alert('Apenas arquivos ZIP são permitidos');
-            input.value = '';
-            fileInfo.classList.add('hidden');
-            return;
-        }
+        // Add drag and drop functionality
+        const dropZone = document.querySelector('.border-dashed');
+        const fileInput = document.getElementById('arquivo_zip');
 
-        fileInfo.classList.remove('hidden');
-    } else {
-        fileInfo.classList.add('hidden');
-    }
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-400', 'bg-blue-500/10');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-400', 'bg-blue-500/10');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-400', 'bg-blue-500/10');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileName(fileInput);
+            }
+        });
+    </script>
 }
-
-function formatFileSize(bytes) {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 Bytes';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-}
-
-// Form submission handling
-document.getElementById('uploadForm').addEventListener('submit', function(e) {
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
-    submitBtn.disabled = true;
-});
-</script>

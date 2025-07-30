@@ -1,0 +1,8 @@
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.csproj.AssemblyReference.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.AssemblyInfoInputs.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.AssemblyInfo.cs
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.csproj.CoreCompileInputs.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.MvcApplicationPartsAssemblyInfo.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.RazorAssemblyInfo.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.RazorAssemblyInfo.cs

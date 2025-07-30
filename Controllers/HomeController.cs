@@ -27,13 +27,11 @@ namespace MAFFENG.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.Modelos = _configManager.GetAvailableModels();
-            ViewBag.Estados = _configManager.GetBrazilianStates();
-            return View();
+            return View(new UploadFormModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(UploadFormModel model)
+        public async Task<IActionResult> ProcessUpload(UploadFormModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -306,6 +304,25 @@ namespace MAFFENG.Controllers
             {
                 TempData["Error"] = $"Erro ao gerar relatório: {ex.Message}";
                 return RedirectToAction("Preview");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Thumbnail(string imagePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(imagePath) || !imagePath.StartsWith("/tmp/temp_img_"))
+                {
+                    return NotFound();
+                }
+
+                var thumbnailBytes = await _zipProcessor.GenerateThumbnailAsync(imagePath);
+                return File(thumbnailBytes, "image/jpeg");
+            }
+            catch (Exception)
+            {
+                return NotFound();
             }
         }
 
