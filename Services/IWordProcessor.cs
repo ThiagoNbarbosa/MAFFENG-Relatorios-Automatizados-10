@@ -4,6 +4,6 @@ namespace MAFFENG.Services
 {
     public interface IWordProcessor
     {
-        Task<int> GenerateReportAsync(string templatePath, List<object> content, Dictionary<string, string> placeholders, UploadFormModel formData, string outputPath);
+        Task<int> GenerateReportAsync(string modelPath, List<object> content, Dictionary<string, string> placeholders, UploadFormModel formData, string outputPath);
     }
 }

@@ -1,112 +1,107 @@
 @{
-    ViewBag.Title = "Relatório Gerado com Sucesso";
+    ViewData["Title"] = "Relatório Gerado";
 }
 
 <div class="space-y-8">
     <!-- Success Header -->
     <div class="glass-card rounded-2xl p-8 text-center">
-        <div class="w-24 h-24 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-check text-white text-4xl"></i>
+        <div class="flex flex-col items-center">
+            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-check-circle text-4xl text-green-400"></i>
+            </div>
+            <h1 class="text-4xl font-bold mb-2 text-green-400">Relatório Gerado com Sucesso!</h1>
+            <p class="text-gray-300 text-lg">Seu relatório fotográfico foi processado completamente</p>
         </div>
-        <h2 class="text-4xl font-bold mb-4 text-green-400">Relatório Gerado com Sucesso!</h2>
-        <p class="text-xl text-gray-300">Seu relatório fotográfico foi criado e está pronto para download</p>
     </div>
 
     <!-- Report Details -->
     <div class="glass-card rounded-2xl p-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div class="p-6 bg-blue-600/20 rounded-lg border border-blue-400">
-                <i class="fas fa-project-diagram text-blue-400 text-3xl mb-3"></i>
-                <h3 class="text-lg font-semibold mb-2">Projeto</h3>
-                <p class="text-gray-300">@ViewBag.Projeto</p>
+        <h2 class="text-2xl font-bold mb-6">
+            <i class="fas fa-file-word mr-2 text-blue-400"></i>
+            Detalhes do Relatório
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div>
+                    <span class="text-gray-400">Projeto:</span>
+                    <div class="font-medium">@ViewBag.Projeto</div>
+                </div>
+                <div>
+                    <span class="text-gray-400">Arquivo:</span>
+                    <div class="font-medium">@ViewBag.Filename</div>
+                </div>
             </div>
             
-            <div class="p-6 bg-green-600/20 rounded-lg border border-green-400">
-                <i class="fas fa-images text-green-400 text-3xl mb-3"></i>
-                <h3 class="text-lg font-semibold mb-2">Imagens Inseridas</h3>
-                <p class="text-green-300 text-2xl font-bold">@ViewBag.NumImagens</p>
-            </div>
-            
-            <div class="p-6 bg-purple-600/20 rounded-lg border border-purple-400">
-                <i class="fas fa-file-word text-purple-400 text-3xl mb-3"></i>
-                <h3 class="text-lg font-semibold mb-2">Formato</h3>
-                <p class="text-gray-300">Documento Word (.docx)</p>
+            <div class="space-y-4">
+                <div>
+                    <span class="text-gray-400">Imagens Processadas:</span>
+                    <div class="text-2xl font-bold text-green-400">@ViewBag.NumImagens</div>
+                </div>
+                <div>
+                    <span class="text-gray-400">Status:</span>
+                    <div class="text-green-400 font-medium">
+                        <i class="fas fa-check mr-2"></i>
+                        Concluído
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Download Section -->
     <div class="glass-card rounded-2xl p-8 text-center">
-        <h3 class="text-2xl font-semibold mb-6">Download do Relatório</h3>
+        <h3 class="text-xl font-semibold mb-4">
+            <i class="fas fa-download mr-2 text-yellow-400"></i>
+            Download do Relatório
+        </h3>
         
-        <div class="bg-white/5 border border-white/20 rounded-lg p-6 mb-6 inline-block">
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-file-word text-blue-400 text-3xl"></i>
-                <div class="text-left">
-                    <p class="font-medium text-white">@ViewBag.Filename</p>
-                    <p class="text-sm text-gray-400">Documento Microsoft Word</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-4">
-            <a href="@Url.Action("Download", new { filename = ViewBag.Filename })" 
-               class="inline-flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105">
-                <i class="fas fa-download"></i>
-                <span>Baixar Relatório</span>
+        <p class="text-gray-300 mb-6">
+            Seu relatório está pronto para download. O arquivo contém todas as imagens organizadas conforme o layout definido.
+        </p>
+        
+        <div class="space-x-4">
+            <a asp-action="Download" asp-route-filename="@ViewBag.Filename" 
+               class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg transition-colors font-medium text-lg inline-block">
+                <i class="fas fa-download mr-2"></i>
+                Baixar Relatório (.docx)
             </a>
             
-            <br>
-            
-            <a href="@Url.Action("Index")" 
-               class="inline-flex items-center space-x-2 text-gray-400 hover:text-white transition-colors">
-                <i class="fas fa-plus"></i>
-                <span>Gerar Novo Relatório</span>
+            <a asp-action="Index" 
+               class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition-colors font-medium text-lg inline-block">
+                <i class="fas fa-plus mr-2"></i>
+                Novo Relatório
             </a>
         </div>
     </div>
 
     <!-- Instructions -->
-    <div class="glass-card rounded-2xl p-8">
-        <h3 class="text-xl font-semibold mb-4 flex items-center">
-            <i class="fas fa-info-circle text-blue-400 mr-3"></i>
-            Informações Importantes
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-xl font-semibold mb-4">
+            <i class="fas fa-info-circle mr-2 text-blue-400"></i>
+            Próximos Passos
         </h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-300">
             <div>
-                <h4 class="font-medium text-green-400 mb-2">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    Relatório Gerado
-                </h4>
-                <ul class="text-gray-300 text-sm space-y-1">
-                    <li>• Todas as imagens foram processadas e inseridas</li>
-                    <li>• Placeholders foram substituídos com os dados do formulário</li>
-                    <li>• Estrutura de pastas foi organizada conforme especificado</li>
-                    <li>• Documento pronto para apresentação profissional</li>
+                <h4 class="font-medium mb-2 text-white">📄 Sobre o Arquivo</h4>
+                <ul class="space-y-1 text-sm">
+                    <li>• Formato: Microsoft Word (.docx)</li>
+                    <li>• Todas as imagens foram inseridas</li>
+                    <li>• Layout profissional aplicado</li>
+                    <li>• Pronto para impressão ou envio</li>
                 </ul>
             </div>
             
             <div>
-                <h4 class="font-medium text-blue-400 mb-2">
-                    <i class="fas fa-download mr-2"></i>
-                    Como Usar o Arquivo
-                </h4>
-                <ul class="text-gray-300 text-sm space-y-1">
-                    <li>• Clique no botão "Baixar Relatório" acima</li>
-                    <li>• Abra o arquivo com Microsoft Word ou LibreOffice</li>
-                    <li>• Revise o conteúdo antes da apresentação final</li>
-                    <li>• O arquivo pode ser editado se necessário</li>
+                <h4 class="font-medium mb-2 text-white">⚡ Dicas</h4>
+                <ul class="space-y-1 text-sm">
+                    <li>• Abra o arquivo no Microsoft Word</li>
+                    <li>• Verifique se todas as informações estão corretas</li>
+                    <li>• Faça ajustes finais se necessário</li>
+                    <li>• Salve uma cópia de backup</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-// Auto download after 3 seconds (optional)
-setTimeout(function() {
-    // Uncomment the next line if you want auto download
-    // window.location.href = '@Url.Action("Download", new { filename = ViewBag.Filename })';
-}, 3000);
-</script>
