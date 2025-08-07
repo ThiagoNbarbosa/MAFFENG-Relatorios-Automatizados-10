@@ -1,0 +1,98 @@
+# Prompt para Diagnóstico de Aplicação .NET
+
+Você é um desenvolvedor sênior especializado em troubleshooting de aplicações .NET. Preciso que analise por que minha aplicação não está executando corretamente.
+
+## Informações da Aplicação
+
+**Estrutura do projeto:**
+- Aplicação .NET com arquitetura MVC
+- Pastas: Controllers, Models, Services, Views
+- Arquivos principais: Program.cs, MAFFENG.csproj
+- Possui README.md e documentação de análise
+
+## Checklist de Diagnóstico
+
+Por favor, me guie através desta análise sistemática:
+
+### 1. **Verificação de Configuração**
+- [ ] Verificar se todas as dependências estão instaladas (`dotnet restore`)
+- [ ] Conferir se a versão do .NET está correta
+- [ ] Validar configurações no arquivo `.csproj`
+- [ ] Verificar variáveis de ambiente necessárias
+
+### 2. **Análise de Logs e Erros**
+- [ ] Executar `dotnet build` e verificar erros de compilação
+- [ ] Executar `dotnet run` e capturar mensagens de erro
+- [ ] Verificar logs da aplicação (se houver)
+- [ ] Conferir dependências em falta ou conflitos
+
+### 3. **Verificação de Arquivos Essenciais**
+- [ ] Program.cs está configurado corretamente
+- [ ] Startup.cs ou configurações equivalentes
+- [ ] Arquivos de configuração (appsettings.json, etc.)
+- [ ] Controllers têm rotas válidas
+
+### 4. **Verificação de Banco de Dados/Conexões**
+- [ ] String de conexão está correta
+- [ ] Banco de dados está acessível
+- [ ] Migrações foram aplicadas (se usando Entity Framework)
+- [ ] Serviços externos estão funcionando
+
+### 5. **Verificação de Porta e Ambiente**
+- [ ] Porta está disponível
+- [ ] Firewall não está bloqueando
+- [ ] Configurações de CORS (se aplicável)
+- [ ] Certificados SSL (se HTTPS)
+
+## Comandos para Executar
+
+Execute estes comandos na ordem e me informe o resultado de cada um:
+
+```bash
+# 1. Verificar versão do .NET
+dotnet --version
+
+# 2. Restaurar dependências
+dotnet restore
+
+# 3. Limpar e reconstruir
+dotnet clean
+dotnet build
+
+# 4. Executar a aplicação
+dotnet run
+
+# 5. Se houver migrations (Entity Framework)
+dotnet ef database update
+```
+
+## Informações que Preciso
+
+Para um diagnóstico preciso, me forneça:
+
+1. **Mensagens de erro completas** (copie e cole exatamente como aparecem)
+2. **Resultado dos comandos** listados acima
+3. **Conteúdo dos arquivos principais:**
+   - Program.cs
+   - Partes relevantes do .csproj
+   - appsettings.json (sem dados sensíveis)
+4. **Comportamento esperado vs atual**
+5. **Quando parou de funcionar** (se funcionava antes)
+6. **Mudanças recentes** no código ou ambiente
+
+## Análise Detalhada
+
+Com base nas informações fornecidas, irei:
+
+1. **Identificar a causa raiz** do problema
+2. **Propor soluções específicas** passo a passo
+3. **Sugerir melhorias** para evitar problemas futuros
+4. **Documentar a solução** para referência
+
+## Próximos Passos
+
+Após executar os comandos e fornecer as informações solicitadas, poderei oferecer um diagnóstico preciso e soluções direcionadas para seu problema específico.
+
+---
+
+*Execute os comandos na pasta raiz do projeto (onde está o arquivo .csproj) e compartilhe os resultados para uma análise completa.*
