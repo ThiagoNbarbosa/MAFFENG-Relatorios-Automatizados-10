@@ -51,12 +51,15 @@
                         <input type="hidden" name="item_title_@(itemIndex)" value="@item.Title" />
                         <input type="hidden" name="item_level_@(itemIndex)" value="@item.Level" />
                         
-                        @{ itemIndex++; }
+                        @{ 
+                            itemIndex++; 
+                        }
                         
                         <!-- Folder Images -->
                         <div class="folder-images mt-4 grid grid-cols-4 gap-4" style="display: block;">
                             @foreach (var image in item.Images)
                             {
+                                itemIndex++;
                                 <div class="preview-item image-item bg-gray-500/20 border border-gray-500/30 rounded-lg p-3" data-type="image">
                                     <div class="flex items-center space-x-2 mb-2">
                                         <i class="fas fa-grip-vertical text-gray-400 cursor-move text-xs"></i>
@@ -81,8 +84,6 @@
                                     <input type="hidden" name="item_type_@(itemIndex)" value="image" />
                                     <input type="hidden" name="item_path_@(itemIndex)" value="@image.Path" />
                                 </div>
-                                
-                                @{ itemIndex++; }
                             }
                         </div>
                     </div>

@@ -1,0 +1,88 @@
+{
+  "Version": 1,
+  "Hash": "7iNJBVbCssqKQ7zyj7fHBk3Ivp7y0a0YbexTFgR6CbM=",
+  "Source": "MAFFENG",
+  "BasePath": "_content/MAFFENG",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "MAFFENG/wwwroot",
+      "Source": "MAFFENG",
+      "ContentRoot": "/home/runner/workspace/wwwroot/",
+      "BasePath": "_content/MAFFENG",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/home/runner/workspace/wwwroot/css/style.css",
+      "SourceId": "MAFFENG",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/runner/workspace/wwwroot/",
+      "BasePath": "_content/MAFFENG",
+      "RelativePath": "css/style.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/css/style.css"
+    },
+    {
+      "Identity": "/home/runner/workspace/wwwroot/images/favicon.png",
+      "SourceId": "MAFFENG",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/runner/workspace/wwwroot/",
+      "BasePath": "_content/MAFFENG",
+      "RelativePath": "images/favicon.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/images/favicon.png"
+    },
+    {
+      "Identity": "/home/runner/workspace/wwwroot/images/maffeng-logo.png",
+      "SourceId": "MAFFENG",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/runner/workspace/wwwroot/",
+      "BasePath": "_content/MAFFENG",
+      "RelativePath": "images/maffeng-logo.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/images/maffeng-logo.png"
+    },
+    {
+      "Identity": "/home/runner/workspace/wwwroot/LOGO.png",
+      "SourceId": "MAFFENG",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/runner/workspace/wwwroot/",
+      "BasePath": "_content/MAFFENG",
+      "RelativePath": "LOGO.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/LOGO.png"
+    }
+  ]
+}
