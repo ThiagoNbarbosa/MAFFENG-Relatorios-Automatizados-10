@@ -6,6 +6,16 @@
 
 ## Recent Changes
 
+### 2025-08-07 - Workflow Configuration Cleanup
+- ✅ **REMOVED ALL PYTHON DEPENDENCIES** - Cleaned pyproject.toml, uv.lock, __pycache__, main.py
+- ✅ **WORKFLOW CLEANUP COMPLETED** - Eliminated redundant and conflicting workflows
+- ✅ Removed "Start application" workflow (Gunicorn Flask conflict)
+- ✅ Removed "flask_app" workflow (obsolete Python dependencies)
+- ✅ Simplified to single C# workflow: `dotnet run --urls=http://0.0.0.0:5000`
+- ✅ Eliminated port 5000 conflicts between Flask and ASP.NET Core
+- ✅ Removed Python launcher main.py that was creating unnecessary complexity
+- ✅ Project now runs purely on C# ASP.NET Core with clean workflow configuration
+
 ### 2025-08-07 - Application Successfully Fixed and Deployed
 - ✅ **RESOLVED ALL STARTUP ISSUES** - Application now runs correctly on port 5000
 - ✅ Fixed workflow configuration mismatch (Flask/Python vs C# ASP.NET Core)
@@ -80,10 +90,12 @@
 
 ### File Structure
 ```
-/app.py - Main Flask application with routing and configuration
-/word_utils.py - Document processing utilities and image handling
-/templates/ - HTML templates (base, index, success)
-/static/ - CSS, JS, and image assets
+/Program.cs - Main C# ASP.NET Core application entry point
+/Controllers/ - MVC controllers for routing and request handling
+/Views/ - Razor templates for HTML rendering
+/Services/ - Business logic services (ZipProcessor, WordProcessor, ConfigManager)
+/Models/ - Data models for form handling and business logic
+/wwwroot/ - Static assets (CSS, JS, images)
 /uploads/ - Temporary file storage
 /output/ - Generated reports storage
 /models/ - Word document templates
@@ -122,11 +134,11 @@ The application collects data in four main sections:
 
 ## External Dependencies
 
-### Python Libraries
-- **Flask**: Web framework and routing
-- **python-docx**: Word document manipulation
-- **Pillow (PIL)**: Image processing and optimization
-- **Werkzeug**: File handling and security utilities
+### C# Libraries (NuGet)
+- **ASP.NET Core**: Web framework and MVC routing
+- **DocumentFormat.OpenXml**: Word document manipulation
+- **SixLabors.ImageSharp**: Image processing and optimization
+- **System.IO.Compression**: ZIP file handling
 
 ### Frontend Dependencies
 - **TailwindCSS**: Styling framework (CDN)
@@ -134,7 +146,7 @@ The application collects data in four main sections:
 - **Custom CSS**: Glassmorphism effects and responsive design
 
 ### System Requirements
-- Python 3.7+
+- .NET 6.0 or higher
 - Modern web browser with JavaScript support
 - Adequate disk space for temporary file processing
 
