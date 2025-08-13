@@ -1,4 +1,4 @@
-modules = ["python-3.11", "dotnet-8", "dotnet-8.0", "dotnet-6"]
+modules = ["python-3.11", "dotnet-8", "dotnet-8.0", "dotnet-6", "dotnet-6.0"]
 
 [nix]
 channel = "stable-24_05"
@@ -40,24 +40,6 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "uv add python-docx pillow"
-
-[[workflows.workflow]]
-name = "Run C# App"
-author = 41832759
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "dotnet run --urls=http://0.0.0.0:5000"
-
-[[workflows.workflow]]
-name = "Aplicação C#"
-author = 41832759
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "dotnet run --urls=http://0.0.0.0:5000"
 
 [[ports]]
 localPort = 5000
