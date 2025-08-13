@@ -1,43 +1,46 @@
-modules = ["dotnet-8", "dotnet-8.0"]
+modules = ["python-3.11", "dotnet-8", "dotnet-8.0"]
 
 [nix]
 channel = "stable-24_05"
-packages = [
-  "dotnet-sdk",
-  "icu",
-  "openssl",
-  "zlib"
-]
-
-[env]
-ASPNETCORE_URLS = "http://0.0.0.0:5000"
+packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "openssl", "postgresql", "tcl", "tk", "zlib", "dotnet-sdk"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["dotnet", "run", "--configuration", "Release", "--no-restore", "--urls=http://0.0.0.0:5000"]
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
 [workflows]
-runButton = "Aplicação C#"
+runButton = "Start application"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "flask_app"
 
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
-mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "dotnet restore"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "dotnet build -c Release"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "dotnet run --configuration Release --no-restore --urls=http://0.0.0.0:5000"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "flask_app"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "uv add python-docx pillow"
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-

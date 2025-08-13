@@ -97,20 +97,18 @@ namespace MAFFENG.Controllers
                 }
 
                 // Process ZIP file
-                var previewData = await _zipProcessor.ProcessZipAsync(zipPath, model);
+                var conteudoEstruturado = await _zipProcessor.ProcessZipAsync(zipPath, model);
 
                 // Store data in session for preview page
                 HttpContext.Session.SetString("FormData", JsonSerializer.Serialize(model));
                 HttpContext.Session.SetString("ZipPath", zipPath);
-                HttpContext.Session.SetString("PreviewData", JsonSerializer.Serialize(previewData));
+                HttpContext.Session.SetString("ConteudoEstruturado", JsonSerializer.Serialize(conteudoEstruturado));
                 HttpContext.Session.SetString("ModelPath", modelPath);
 
                 return RedirectToAction("Preview");
             }
             catch (Exception ex)
             {
-                // Log the detailed error for debugging
-                Console.WriteLine($"ERRO DETALHADO ProcessUpload: {ex}");
                 ModelState.AddModelError("", $"Erro ao processar arquivo: {ex.Message}");
                 ViewBag.Modelos = _configManager.GetAvailableModels();
                 ViewBag.Estados = _configManager.GetBrazilianStates();
@@ -120,45 +118,66 @@ namespace MAFFENG.Controllers
 
         public IActionResult Preview()
         {
-            var previewDataJson = HttpContext.Session.GetString("PreviewData");
+            var conteudoJson = HttpContext.Session.GetString("ConteudoEstruturado");
             var formDataJson = HttpContext.Session.GetString("FormData");
 
-            Console.WriteLine($"DEBUG Preview: PreviewData={!string.IsNullOrEmpty(previewDataJson)}, FormData={!string.IsNullOrEmpty(formDataJson)}");
-
-            if (string.IsNullOrEmpty(previewDataJson) || string.IsNullOrEmpty(formDataJson))
+            if (string.IsNullOrEmpty(conteudoJson) || string.IsNullOrEmpty(formDataJson))
             {
                 TempData["Error"] = "Dados não encontrados. Por favor, faça o upload novamente.";
                 return RedirectToAction("Index");
             }
 
-            var previewData = JsonSerializer.Deserialize<PreviewData>(previewDataJson);
+            var conteudoEstruturado = JsonSerializer.Deserialize<List<object>>(conteudoJson);
             var formData = JsonSerializer.Deserialize<UploadFormModel>(formDataJson);
 
-            // Convert PreviewData to PreviewModel format
+            // Organize content for preview
             var previewItems = new List<PreviewItem>();
+            PreviewItem? currentFolder = null;
 
-            foreach (var folder in previewData!.Folders)
+            foreach (var item in conteudoEstruturado!)
             {
-                var previewItem = new PreviewItem
+                if (item is JsonElement element)
                 {
-                    Type = "folder",
-                    Title = folder.Name.Replace("»", "").Trim(),
-                    OriginalTitle = folder.Name,
-                    Level = folder.Level,
-                    Images = new List<PreviewImage>()
-                };
-
-                foreach (var image in folder.Images)
-                {
-                    previewItem.Images.Add(new PreviewImage
+                    if (element.ValueKind == JsonValueKind.String)
                     {
-                        Type = "image",
-                        Name = image.Name,
-                        Path = image.Path
-                    });
-                }
+                        // This is a folder title
+                        var folderTitle = element.GetString()!;
+                        var nivel = folderTitle.Count(c => c == '»');
+                        var tituloLimpo = folderTitle.Replace("»", "").Trim();
+                        if (tituloLimpo.StartsWith("- -"))
+                        {
+                            tituloLimpo = tituloLimpo[2..].Trim();
+                        }
 
-                previewItems.Add(previewItem);
+                        currentFolder = new PreviewItem
+                        {
+                            Type = "folder",
+                            Title = tituloLimpo,
+                            OriginalTitle = folderTitle,
+                            Level = nivel,
+                            Images = new List<PreviewImage>()
+                        };
+                        previewItems.Add(currentFolder);
+                    }
+                    else if (element.ValueKind == JsonValueKind.Object)
+                    {
+                        if (element.TryGetProperty("imagem", out var imageProp))
+                        {
+                            // This is an image
+                            if (currentFolder != null)
+                            {
+                                var imagePath = imageProp.GetString()!;
+                                var imageName = Path.GetFileName(imagePath);
+                                currentFolder.Images.Add(new PreviewImage
+                                {
+                                    Type = "image",
+                                    Name = imageName,
+                                    Path = imagePath
+                                });
+                            }
+                        }
+                    }
+                }
             }
 
             var previewModel = new PreviewModel
@@ -269,7 +288,7 @@ namespace MAFFENG.Controllers
                 // Clear session data
                 HttpContext.Session.Remove("FormData");
                 HttpContext.Session.Remove("ZipPath");
-                HttpContext.Session.Remove("PreviewData");
+                HttpContext.Session.Remove("ConteudoEstruturado");
                 HttpContext.Session.Remove("ModelPath");
 
                 // Success message
@@ -293,19 +312,12 @@ namespace MAFFENG.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(imagePath) || !System.IO.File.Exists(imagePath))
+                if (string.IsNullOrEmpty(imagePath) || !imagePath.StartsWith("/tmp/temp_img_"))
                 {
                     return NotFound();
                 }
 
-                var thumbnailPath = await _zipProcessor.GenerateThumbnailAsync(imagePath);
-                
-                if (!System.IO.File.Exists(thumbnailPath))
-                {
-                    return NotFound();
-                }
-
-                var thumbnailBytes = await System.IO.File.ReadAllBytesAsync(thumbnailPath);
+                var thumbnailBytes = await _zipProcessor.GenerateThumbnailAsync(imagePath);
                 return File(thumbnailBytes, "image/jpeg");
             }
             catch (Exception)

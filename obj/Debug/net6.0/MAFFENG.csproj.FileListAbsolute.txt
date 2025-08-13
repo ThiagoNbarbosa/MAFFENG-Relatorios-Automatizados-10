@@ -1,4 +1,11 @@
-/home/runner/workspace/bin/Debug/net6.0/packages.lock.json
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.csproj.AssemblyReference.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.AssemblyInfoInputs.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.AssemblyInfo.cs
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.csproj.CoreCompileInputs.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.MvcApplicationPartsAssemblyInfo.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.RazorAssemblyInfo.cache
+/home/runner/workspace/obj/Debug/net6.0/MAFFENG.RazorAssemblyInfo.cs
 /home/runner/workspace/bin/Debug/net6.0/MAFFENG.staticwebassets.runtime.json
 /home/runner/workspace/bin/Debug/net6.0/MAFFENG
 /home/runner/workspace/bin/Debug/net6.0/MAFFENG.deps.json
@@ -9,14 +16,6 @@
 /home/runner/workspace/bin/Debug/net6.0/DocumentFormat.OpenXml.Framework.dll
 /home/runner/workspace/bin/Debug/net6.0/SixLabors.ImageSharp.dll
 /home/runner/workspace/bin/Debug/net6.0/System.IO.Packaging.dll
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.csproj.AssemblyReference.cache
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.GeneratedMSBuildEditorConfig.editorconfig
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.AssemblyInfoInputs.cache
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.AssemblyInfo.cs
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.csproj.CoreCompileInputs.cache
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.MvcApplicationPartsAssemblyInfo.cache
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.RazorAssemblyInfo.cache
-/home/runner/workspace/obj/Debug/net6.0/MAFFENG.RazorAssemblyInfo.cs
 /home/runner/workspace/obj/Debug/net6.0/staticwebassets.build.json
 /home/runner/workspace/obj/Debug/net6.0/staticwebassets.development.json
 /home/runner/workspace/obj/Debug/net6.0/scopedcss/bundle/MAFFENG.styles.css

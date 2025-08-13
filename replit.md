@@ -6,47 +6,6 @@
 
 ## Recent Changes
 
-### 2025-08-07 - Workflow Configuration Cleanup
-- ✅ **REMOVED ALL PYTHON DEPENDENCIES** - Cleaned pyproject.toml, uv.lock, __pycache__, main.py
-- ✅ **WORKFLOW CLEANUP COMPLETED** - Eliminated redundant and conflicting workflows
-- ✅ Removed "Start application" workflow (Gunicorn Flask conflict)
-- ✅ Removed "flask_app" workflow (obsolete Python dependencies)
-- ✅ Simplified to single C# workflow: `dotnet run --urls=http://0.0.0.0:5000`
-- ✅ Eliminated port 5000 conflicts between Flask and ASP.NET Core
-- ✅ Removed Python launcher main.py that was creating unnecessary complexity
-- ✅ Project now runs purely on C# ASP.NET Core with clean workflow configuration
-
-### 2025-08-07 - Application Successfully Fixed and Deployed
-- ✅ **RESOLVED ALL STARTUP ISSUES** - Application now runs correctly on port 5000
-- ✅ Fixed workflow configuration mismatch (Flask/Python vs C# ASP.NET Core)
-- ✅ Resolved port conflicts between Gunicorn and C# application
-- ✅ Confirmed C# ASP.NET Core application loads with full MAFFENG interface
-- ✅ Verified glassmorphism design and TailwindCSS styling work correctly
-- ✅ Application serves proper HTML with Portuguese interface
-- ✅ Production environment configured and running stably
-
-### 2025-08-13 - Complete System Cleanup ✅
-- ✅ **PREVIEW SYSTEM DEBUGGING COMPLETED** - Identificados e corrigidos todos os erros críticos
-- ✅ **MODEL COMPATIBILITY FIXED** - Resolvida incompatibilidade entre PreviewData e PreviewModel
-- ✅ **THUMBNAIL SYSTEM FIXED** - Corrigido método GenerateThumbnailAsync que retornava tipo errado
-- ✅ **SESSION MANAGEMENT FIXED** - Corrigido storage de sessão (PreviewData em vez de List<object>)
-- ✅ **WORKFLOWS CLEANED** - Removidos workflows obsoletos do Python que causavam conflitos
-- ✅ **DEBUG LOGGING ADDED** - Adicionados logs detalhados para diagnóstico de problemas
-- ✅ **THUMBNAIL DIRECTORY CREATED** - Criada estrutura /wwwroot/thumbnails para cache de imagens  
-- ✅ **PLACEHOLDER SVG ADDED** - Criado placeholder.svg para fallback de imagens
-- ✅ **PREVIEW ROUTING FIXED** - Corrigidas rotas e validações do sistema de preview
-- ✅ **PROJECT CLEANUP COMPLETED** - Removidos todos arquivos Python e dependências obsoletas
-- ✅ **C# APPLICATION RUNNING** - Aplicação funcionando na porta 5000 com HTTP 200 OK
-
-### 2025-08-13 - FINAL WORKFLOW CLEANUP ✅
-- ✅ **ARQUIVO .replit CONFIGURADO** - Workflow centralizado para .NET 8 com Kestrel
-- ✅ **PYTHON COMPLETAMENTE REMOVIDO** - Eliminados main.py, app.py, run.py, start_app.sh
-- ✅ **DEPENDÊNCIAS FLASK/GUNICORN REMOVIDAS** - Sistema limpo de qualquer rastro Python
-- ✅ **WORKFLOW "Start application" ATIVO** - Executando `dotnet restore && dotnet build -c Release && dotnet run --configuration Release --no-restore --urls=http://0.0.0.0:5000`
-- ✅ **PORTA 5000 CONFIGURADA** - Exposta na porta 80 do Replit
-- ✅ **SISTEMA 100% .NET 8** - Aplicação rodando apenas com dotnet e Kestrel
-- ✅ **CONFIGURAÇÃO FINALIZADA** - Workflow centralizado funcionando perfeitamente
-
 ### 2025-07-30 - Active C# Migration Progress
 - ✅ Migrated from Python Flask to C# ASP.NET Core
 - ✅ Implemented preview functionality with drag & drop reordering
@@ -112,12 +71,10 @@
 
 ### File Structure
 ```
-/Program.cs - Main C# ASP.NET Core application entry point
-/Controllers/ - MVC controllers for routing and request handling
-/Views/ - Razor templates for HTML rendering
-/Services/ - Business logic services (ZipProcessor, WordProcessor, ConfigManager)
-/Models/ - Data models for form handling and business logic
-/wwwroot/ - Static assets (CSS, JS, images)
+/app.py - Main Flask application with routing and configuration
+/word_utils.py - Document processing utilities and image handling
+/templates/ - HTML templates (base, index, success)
+/static/ - CSS, JS, and image assets
 /uploads/ - Temporary file storage
 /output/ - Generated reports storage
 /models/ - Word document templates
@@ -156,11 +113,11 @@ The application collects data in four main sections:
 
 ## External Dependencies
 
-### C# Libraries (NuGet)
-- **ASP.NET Core**: Web framework and MVC routing
-- **DocumentFormat.OpenXml**: Word document manipulation
-- **SixLabors.ImageSharp**: Image processing and optimization
-- **System.IO.Compression**: ZIP file handling
+### Python Libraries
+- **Flask**: Web framework and routing
+- **python-docx**: Word document manipulation
+- **Pillow (PIL)**: Image processing and optimization
+- **Werkzeug**: File handling and security utilities
 
 ### Frontend Dependencies
 - **TailwindCSS**: Styling framework (CDN)
@@ -168,7 +125,7 @@ The application collects data in four main sections:
 - **Custom CSS**: Glassmorphism effects and responsive design
 
 ### System Requirements
-- .NET 6.0 or higher
+- Python 3.7+
 - Modern web browser with JavaScript support
 - Adequate disk space for temporary file processing
 
