@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MAFFENG")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57c088f16fc04c669e6ea8d873192349a4e50505")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("MAFFENG")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MAFFENG")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -258,7 +258,9 @@ namespace MAFFENG.Services
                 Directory.CreateDirectory(thumbnailDir);
 
                 var fileName = Path.GetFileNameWithoutExtension(imagePath);
-                var thumbnailName = $"{fileName}_thumb_{width}x{height}.jpg";
+                var extension = Path.GetExtension(imagePath);
+                var uniqueId = Path.GetRandomFileName().Replace(".", "")[..8];
+                var thumbnailName = $"{fileName}_{uniqueId}_thumb_{width}x{height}.jpg";
                 var thumbnailPath = Path.Combine(thumbnailDir, thumbnailName);
 
                 if (!File.Exists(thumbnailPath))
@@ -275,12 +277,12 @@ namespace MAFFENG.Services
                     await image.SaveAsJpegAsync(thumbnailPath);
                 }
 
-                return Path.Combine("/thumbnails", thumbnailName);
+                return thumbnailPath;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to generate thumbnail for: {imagePath}");
-                return "/images/placeholder.svg"; // Fallback placeholder
+                return string.Empty; // Return empty string on error
             }
         }
     }

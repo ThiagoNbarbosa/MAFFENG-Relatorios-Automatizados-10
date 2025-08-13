@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "7iNJBVbCssqKQ7zyj7fHBk3Ivp7y0a0YbexTFgR6CbM=",
+  "Hash": "dnAUmrkkKDzgIadVuc0acxpuunxH2Z/+gRxr+lMtCCI=",
   "Source": "MAFFENG",
   "BasePath": "_content/MAFFENG",
   "Mode": "Default",
@@ -66,6 +66,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/images/maffeng-logo.png"
+    },
+    {
+      "Identity": "/home/runner/workspace/wwwroot/images/placeholder.svg",
+      "SourceId": "MAFFENG",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/runner/workspace/wwwroot/",
+      "BasePath": "_content/MAFFENG",
+      "RelativePath": "images/placeholder.svg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/images/placeholder.svg"
     },
     {
       "Identity": "/home/runner/workspace/wwwroot/LOGO.png",

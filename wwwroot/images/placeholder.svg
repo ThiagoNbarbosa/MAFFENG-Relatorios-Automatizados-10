@@ -1,0 +1,6 @@
+<svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="150" height="150" fill="#374151"/>
+<path d="M52.5 97.5L67.5 82.5L90 105L112.5 82.5L127.5 97.5V112.5H52.5V97.5Z" fill="#9CA3AF"/>
+<circle cx="60" cy="60" r="7.5" fill="#9CA3AF"/>
+<text x="75" y="135" font-family="Arial, sans-serif" font-size="12" fill="#9CA3AF" text-anchor="middle">Imagem</text>
+</svg>
