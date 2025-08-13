@@ -9,7 +9,7 @@ deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
 [workflows]
-runButton = "Run C# App"
+runButton = "Aplicação C#"
 
 [[workflows.workflow]]
 name = "Project"
@@ -43,6 +43,15 @@ args = "uv add python-docx pillow"
 
 [[workflows.workflow]]
 name = "Run C# App"
+author = 41832759
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "dotnet run --urls=http://0.0.0.0:5000"
+
+[[workflows.workflow]]
+name = "Aplicação C#"
 author = 41832759
 mode = "sequential"
 
