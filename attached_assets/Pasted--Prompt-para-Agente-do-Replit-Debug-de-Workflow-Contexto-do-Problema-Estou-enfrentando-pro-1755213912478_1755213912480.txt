@@ -1,0 +1,85 @@
+# Prompt para Agente do Replit - Debug de Workflow
+
+## Contexto do Problema
+Estou enfrentando problemas relacionados ao **WORKFLOW** no meu aplicativo. Preciso de uma análise completa para identificar e corrigir os erros.
+
+## Solicitação de Análise
+
+### 1. Diagnóstico Inicial
+Por favor, analise meu projeto e identifique:
+- Todos os arquivos de configuração de workflow (`.github/workflows/`, `replit.nix`, `.replit`, etc.)
+- Logs de erro relacionados ao workflow
+- Dependências que podem estar causando conflitos
+- Configurações de ambiente que possam estar inadequadas
+
+### 2. Verificações Específicas
+Execute as seguintes verificações:
+
+**Arquivos de Configuração:**
+- Verifique a sintaxe do arquivo `.replit`
+- Analise o `replit.nix` para dependências corretas
+- Examine workflows do GitHub Actions (se aplicável)
+- Revise `package.json`, `requirements.txt` ou arquivos de dependência similares
+
+**Logs e Erros:**
+- Examine os logs do console do Replit
+- Identifique erros de build ou runtime
+- Verifique mensagens de erro relacionadas ao workflow
+- Analise logs de deployment (se aplicável)
+
+**Ambiente e Dependências:**
+- Verifique compatibilidade de versões
+- Identifique dependências em conflito
+- Analise configurações de ambiente
+- Verifique permissões de arquivos
+
+### 3. Análise Detalhada
+Para cada problema encontrado, forneça:
+
+**Descrição do Problema:**
+- O que exatamente está acontecendo
+- Quando o erro ocorre (build, runtime, deployment)
+- Mensagens de erro específicas
+
+**Causa Raiz:**
+- Por que o problema está acontecendo
+- Quais arquivos/configurações estão envolvidos
+- Dependências ou configurações problemáticas
+
+**Soluções Propostas:**
+- Correções imediatas possíveis
+- Modificações necessárias em arquivos
+- Comandos a serem executados
+- Melhores práticas recomendadas
+
+### 4. Plano de Correção
+Crie um plano passo-a-passo para:
+1. Backup dos arquivos importantes
+2. Implementação das correções (em ordem de prioridade)
+3. Testes para validar as correções
+4. Monitoramento para evitar reincidência
+
+### 5. Prevenção
+Sugira:
+- Configurações para evitar problemas similares
+- Melhores práticas para workflow
+- Ferramentas de monitoramento recomendadas
+- Documentação necessária
+
+## Informações Adicionais
+- **Linguagem/Framework:** [Especifique a tecnologia do seu projeto]
+- **Tipo de Aplicação:** [Web app, API, bot, etc.]
+- **Último Status Funcional:** [Quando funcionou pela última vez]
+- **Mudanças Recentes:** [O que foi modificado recentemente]
+
+## Formato de Resposta Esperado
+Por favor, organize sua resposta em:
+1. **Resumo Executivo** - Principais problemas identificados
+2. **Análise Detalhada** - Cada problema com sua solução
+3. **Código/Configurações Corrigidas** - Arquivos modificados
+4. **Comandos de Execução** - Passos para implementar
+5. **Validação** - Como testar se foi corrigido
+6. **Recomendações Futuras** - Prevenção e melhores práticas
+
+---
+**Urgência:** Por favor, priorize problemas que impedem o funcionamento básico da aplicação.
